@@ -1,0 +1,11 @@
+seq_path=./probegenerator/res/frem3.fa
+path_to_block_parse=./OligoMiner/blockparse.py
+bed_output_path=../ax_frem3
+l=25
+L=25
+g=20
+G=80
+t=40
+T=60
+s=1000
+F=30
