@@ -35,14 +35,13 @@ def getProbePairs(inputPath, desiredSpaces):
 def writeProbesToCSV(seqf, seqpair):
     with open('./probes.csv', 'w+') as probes:
         csv_writer = csv.writer(probes, delimiter=",")
-        csv_writer.writerow(['SHH', 'start', 'stop', 'seq', 'tm', 'spacing', 'SHH name', 'underscore'])
+        csv_writer.writerow(['SHH', 'start', 'stop', 'seq', 'tm', 'spacing'])
         last_index = 0
         for line in seqf:
             space = int(line[1]) - int(last_index)
             if space >= 3:
                 last_index = line[2] 
                 line.append(space)
-                line.append("_")
                 csv_writer.writerow(line)
 
 if __name__ == '__main__':
