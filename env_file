@@ -1,6 +1,6 @@
-seq_path=./ProbeGenerator/probegenerator/res/frem3.fa
+seq_path=./probegenerator/probegenerator/res/frem3.fa
 path_to_block_parse=./OligoMiner/blockParse.py
-path_to_probe_generatorpy=./ProbeGenerator/probegenerator/probeGenerator.py
+path_to_probe_generatorpy=./probegenerator/probegenerator/probeGenerator.py
 bed_output_path=../ax_frem3
 l=25
 L=25
