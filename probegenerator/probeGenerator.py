@@ -13,13 +13,34 @@ def getProbePairs(input_path, desired_spaces):
             if int(seqn[1]) >= probeend:
                 seqf.append(seqn)
                 probeend = (int(seqn[2]) + int(desired_spaces))
-    write_probes_to_csv(seqf, desired_spaces)
+    pairs = create_pairs(seqf)
+    write_probes_to_csv(pairs, desired_spaces)
 
-def write_probes_to_csv(seqf, desired_spaces):
+def create_pairs(sequences): 
+    if not sequences:
+        raise Exception("Empty sequence list")
+    
+    pairs = []
+    previous_sequence = sequences[0]
+    for sequence in sequences[1:]:
+        cur_start = int(sequence[1])
+        prev_end = int(previous_sequence[2])
+        if pairs and previous_sequence in pairs[-1]:
+            previous_sequence = sequence
+            continue
+        if (cur_start - prev_end == 3):
+            pairs.append([previous_sequence, sequence])
+        previous_sequence = sequence    
+
+    # TODO : just pass these as pairs to make write body easier
+    return [seq for pair in pairs for seq in pair]
+
+
+def write_probes_to_csv(seq_pairs, desired_spaces):
     with open('./probes.csv', 'w+') as probes:
         writer = csv.writer(probes, delimiter=",")
         writer.writerow(['SHH', 'start', 'stop', 'seq', 'tm', 'spacing', 'underscore', 'set', 'dot', 'probe', 'amplifier', 'final name', 'left', 'spacer', 'right', 'final probe'])
-        write_body(writer, seqf, desired_spaces)
+        write_body(writer, seq_pairs, desired_spaces)
 
 def write_body(writer, seqf, desired_spaces):
     last_index = 0
