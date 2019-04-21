@@ -45,41 +45,43 @@ def write_body(writer, pairs, initiator_name, left_initiator_seq, left_initiator
     last_seq_end = 0
     for index in range(0, len(pairs)):
         left = pairs[index][0]
+        left_seq_reverse_complement = reverseComplement(left[3])
         right = pairs[index][1]
+        right_seq_reverse_complement = reverseComplement(right[3])
         left_space = int(left[1]) - int(last_seq_end)
         right_space = int(right[1]) - int(left[2])
         set_num = index + 1
         left_final_name = left[0] + "_" + str(set_num) + "." + str(1) + "_" + initiator_name
         right_final_name = right[0] + "_" + str(set_num) + "." + str(2) + "_" + initiator_name 
-        left_final_probe = left[3] + right_initiator_spacer + right_initiator_seq
-        right_final_probe = left_initiator_seq + left_initiator_spacer + right[3]
+        left_final_probe = left_initiator_seq + left_initiator_spacer + left_seq_reverse_complement
+        right_final_probe = right_seq_reverse_complement + right_initiator_spacer + right_initiator_seq
         writer.writerow([left[0], 
                         left[1], 
                         left[2], 
-                        left[3], 
+                        left_seq_reverse_complement, 
                         left[4], 
                         left_space, 
                         set_num, 
                         1, 
                         "_" + initiator_name, 
                         left_final_name, 
-                        left[3], 
-                        right_initiator_spacer, 
-                        right_initiator_seq, 
+                        left_initiator_seq, 
+                        left_initiator_spacer, 
+                        left_seq_reverse_complement, 
                         left_final_probe])
         writer.writerow([right[0], 
                         right[1], 
                         right[2], 
-                        right[3], 
+                        right_seq_reverse_complement, 
                         right[4], 
                         right_space, 
                         set_num, 
                         2, 
                         "_" + initiator_name, 
                         right_final_name, 
-                        left_initiator_seq, 
+                        right_seq_reverse_complement, 
                         left_initiator_spacer, 
-                        right[3], 
+                        right_initiator_seq, 
                         right_final_probe])
         last_seq_end = right[2]
 
