@@ -80,7 +80,7 @@ def write_body(writer, pairs, initiator_name, left_initiator_seq, left_initiator
                         "_" + initiator_name, 
                         right_final_name, 
                         right_seq_reverse_complement, 
-                        left_initiator_spacer, 
+                        right_initiator_spacer, 
                         right_initiator_seq, 
                         right_final_probe])
         last_seq_end = right[2]
