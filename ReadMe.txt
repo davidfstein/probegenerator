@@ -8,10 +8,9 @@ github into MountFolder.
 ### Edit the env file
 The env_file stores arguments to be passed to the container when it is run.
 The arguments 'l', 'L', 'g', 'G', 't', 'T', 's', and 'F' all correspond to arguments to the OligoMiner blockParse script, and their descriptions can be found in OligoMiner.
-'seq_path' corresponds to the path to the fasta file that holds your sequence.
+'seq_path' corresponds to the path to the fasta file that holds your sequence[s].
 'path_to_block_parse' corresponds to the path to the blockParse.py script in OligoMiner.
-'path_to_probe_generatorpy' corresponds to the path to the probeGenerator.py script in ProbeGenerator.
-'bed_output_path' corresponds to the path at which you would like your bed file to be created by blockParse. Do not include the ".bed" extension.
+'path_to_probe_generator_project' corresponds to the path to the probegenerator project.
 'initiator' correspond to the name of the amplifier you would like to use.
 'left_init_seq' is the left amplifier sequence.
 'left_spacer' is the spacer to be used with the left amplifier sequence
@@ -21,7 +20,7 @@ Update the env file with the appropriate arguments for your needs.
 
 ### Run the container
 ```
-docker run --env-file={path/to/env_file} -v ~/{path/to/MountFolder}:/app dstein96/probegenerator:latest
+docker run --env-file={path/to/env_file} -v ~/{path/to/MountFolder}:/app dstein96/probegenerator:{tag}
 ```
 After running the container you should see a csv file containing the probe information in your MountFolder.
 
@@ -46,3 +45,5 @@ folder and clone it again, or simply from the root of probegenerator run:
 ```
 git pull origin master
 ```
+
+Paths in the env file are relative to the MountFolder. For instance, if your folder structure is 'MountFolder/probegenerator', then the path to probegenerator is './probegenerator'.
