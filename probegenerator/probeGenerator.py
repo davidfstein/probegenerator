@@ -1,9 +1,8 @@
-from argparse import parseArgs
+from argparse import ArgumentParser
 from reverseComplement import reverseComplement
 import sys
 import csv
 
-## TODO : get amplifier as arg
 def getProbePairs(input_path, desired_spaces, initiator_name, left_initiator_seq, left_initiator_spacer, 
                     right_initiator_seq, right_initiator_spacer):
     seqf=[]
@@ -36,7 +35,7 @@ def create_pairs(sequences):
     return pairs
 
 def write_probes_to_csv(seq_pairs, desired_spaces, initiator_name, left_initiator_seq, left_initiator_spacer, right_initiator_seq, right_initiator_spacer):
-    with open('./probes.csv', 'w+') as probes:
+    with open('./' + seq_pairs[0][0][0] + '_probes.csv', 'w+') as probes:
         writer = csv.writer(probes, delimiter=",")
         writer.writerow(['gene name', 'start', 'stop', 'seq', 'tm', 'spacing', 'set', 'probe', 'amplifier', 'final name', 'left', 'spacer', 'right', 'final probe'])
         write_body(writer, seq_pairs, initiator_name, left_initiator_seq, left_initiator_spacer, right_initiator_seq, right_initiator_spacer)
@@ -85,6 +84,35 @@ def write_body(writer, pairs, initiator_name, left_initiator_seq, left_initiator
                         right_final_probe])
         last_seq_end = right[2]
 
+def main():
+    userInput = ArgumentParser(description="Requires a path to a bed file from which to read probes. Takes an integer value to determine "
+                                            + "the number of spaces between probes in a pair. Also takes initiator sequences and an initiator spacer "
+                                            + "for appending to the probes. Outputs a csv containing candidate probe pairs.")
+    requiredNamed = userInput.add_argument_group('required arguments')
+    requiredNamed.add_argument('-p', '--Path', action='store', required=True,
+                                help='The bed file with probe sequences')
+    requiredNamed.add_argument('-s', '--Spaces', action='store', required=True,
+                                help="Desired number of spaces between probes in a pair")
+    requiredNamed.add_argument('-i', '--Initiator', action='store', required=True,
+                                help="The initiator name")
+    requiredNamed.add_argument('-l', '--LeftSeq', action='store', required=True,
+                                help="The left initiator sequence")
+    requiredNamed.add_argument('--LeftSpacer', action='store', required=True,
+                                help="The left initiator spacer")   
+    requiredNamed.add_argument('-r', '--RightSeq', action='store', required=True,
+                                help="The right initiator sequence")
+    requiredNamed.add_argument('--RightSpacer', action='store', required=True,
+                                help="The right initiator spacer")
+    args = userInput.parse_args()
+    input_path = args.Path
+    desired_spaces = args.Spaces
+    initiator_name = args.Initiator
+    left_initiator_seq = args.LeftSeq
+    left_initiator_spacer = args.LeftSpacer
+    right_initiator_seq = args.RightSeq
+    right_initiator_spacer = args.RightSpacer
+    
+    getProbePairs(input_path, desired_spaces, initiator_name, left_initiator_seq, left_initiator_spacer, right_initiator_seq, right_initiator_spacer)
+
 if __name__ == '__main__':
-    inputPath, desiredSpaces, initiator_name, left_initiator_seq, left_initiator_spacer, right_initiator_seq, right_initiator_spacer = parseArgs(sys.argv[1:])
-    getProbePairs(inputPath, desiredSpaces, initiator_name, left_initiator_seq, left_initiator_spacer, right_initiator_seq, right_initiator_spacer)
+    main()
