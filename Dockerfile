@@ -6,5 +6,24 @@ WORKDIR /app
 
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
-ENTRYPOINT python $path_to_block_parse -f $seq_path -l $l -L $L -g $g -G $G -t $t -T $T -s $s -F $F -O -b -R -o $bed_output_path && \
-           python $path_to_probe_generatorpy -p "$bed_output_path.bed" -s 3 -i "$initiator" -l "$left_init_seq" --left-spacer "$left_spacer" -r "$right_init_seq" --right-spacer "$right_spacer"
+ENTRYPOINT bash "$path_to_probe_generator_project/run.sh" \
+                "$path_to_probe_generator_project/probegenerator/parseMultifasta.py" \
+                $seq_path \
+                $path_to_block_parse \
+                $l \
+                $L \
+                $g \
+                $G \
+                $t \
+                $T \
+                $s \
+                $F \
+                ../output \ 
+                "$path_to_probe_generator_project/probegenerator/probeGenerator.py" \
+                ../output.bed \
+                $desired_spaces \
+                $initiator \
+                $left_init_seq \
+                $left_spacer \
+                $right_init_seq \
+                $right_spacer
