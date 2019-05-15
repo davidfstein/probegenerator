@@ -1,43 +1,22 @@
 from __future__ import print_function
 from argparse import ArgumentParser
 from collections import namedtuple
+from Bio import SeqIO
 
-def write_to_separate_fasta_files(fasta_entries):
-    file_names = []
-    for entry in fasta_entries:
-        file_names.append(entry.name)
-        with open(entry.name + ".fa", 'w+') as file:
-            file.write(">" + entry.name + "\n" + entry.sequence)
-    return file_names
+def write_fasta(records):
+    for record in records:
+        name = strip_filename_illegal_characters(record.name) + '.fa'
+        with open(name, 'w+') as file:
+            SeqIO.write(record, file, 'fasta')
+    return [strip_filename_illegal_characters(record.name) for record in records]
 
-def multifasta_to_sequence_list(multifasta):
-    FastaEntry = namedtuple('FastaEntry', 'name sequence')
-    entries = []
-    header_indices = [i for i in range(0,len(multifasta)) if is_header(multifasta[i])]
-    for i in range(0, len(header_indices)):
-        if i == len(header_indices) - 1:
-            seq = concat_lines(multifasta[header_indices[i] + 1:])
-            gene_name = gene_name_from_header(multifasta[header_indices[i]]).strip('\n')
-            entries.append(FastaEntry(name=gene_name, sequence=seq))
-        else:
-            header_index = header_indices[i]
-            next_header_index = header_indices[i+1]
-            seq = concat_lines(multifasta[header_index + 1:next_header_index])
-            gene_name = gene_name_from_header(multifasta[header_index]).strip('\n')
-            entries.append(FastaEntry(name=gene_name, sequence=seq))
-    return entries
+def multifasta_to_list_of_fasta(multifasta_path):
+    with open(multifasta_path, 'rU') as multifasta:
+        return [record for record in SeqIO.parse(multifasta, 'fasta')]
 
-def concat_lines(lines):
-    concatted_line = ''
-    for line in lines:
-        concatted_line += line
-    return concatted_line
-
-def gene_name_from_header(line):
-    return line[1:].split(' ')[0]
-
-def is_header(line):
-    return '>' in line
+def strip_filename_illegal_characters(name):
+    name = name.replace('/', '').replace(':', '').replace('\\', '').replace('.', '').replace('|', '')
+    return name
 
 def main():
     userInput = ArgumentParser(description="Requires a fasta file or multifasta file as input. If file is multifasta, the file is split "
@@ -49,9 +28,8 @@ def main():
     args = userInput.parse_args()
     inputFile = args.file
     
-    with open(inputFile) as file:
-        fasta_entries = multifasta_to_sequence_list(file.readlines())
-        print(*write_to_separate_fasta_files(fasta_entries))
+    records = multifasta_to_list_of_fasta(inputFile)
+    print(*write_fasta(records))
 
 if __name__ == '__main__':
     main()
