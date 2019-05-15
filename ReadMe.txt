@@ -20,7 +20,7 @@ Update the env file with the appropriate arguments for your needs.
 
 ### Run the container
 ```
-docker run --env-file={path/to/env_file} -v ~/{path/to/MountFolder}:/app dstein96/probegenerator:{tag}
+docker run --env-file={path/to/env_file} -v ~/{path/to/MountFolder}:/app dstein96/probegenerator:0.5
 ```
 After running the container you should see a csv file containing the probe information in your MountFolder.
 
@@ -47,3 +47,5 @@ git pull origin master
 ```
 
 Paths in the env file are relative to the MountFolder. For instance, if your folder structure is 'MountFolder/probegenerator', then the path to probegenerator is './probegenerator'.
+
+Check the latest version of the docker image here: https://cloud.docker.com/repository/registry-1.docker.io/dstein96/probegenerator/tags
