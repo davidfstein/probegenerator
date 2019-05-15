@@ -6,5 +6,5 @@ setup(
     author='David Stein',
     author_email='stein.davi@husky.neu.edu',
     packages=['probegenerator',],
-    license='Creative Commons Attribution-Noncommercial-Share Alike license',
+    license='MIT',
 )
