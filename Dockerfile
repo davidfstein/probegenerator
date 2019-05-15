@@ -1,12 +1,24 @@
-FROM python:2.7-slim
+FROM debian:stable-slim
+
+RUN apt-get update && yes|apt-get upgrade && apt-get clean all && \
+    apt-get --no-install-recommends install -y wget bzip2 && \
+    rm -rf /var/lib/apt/lists/* && \
+    wget --no-check-certificate https://repo.anaconda.com/miniconda/Miniconda2-latest-Linux-x86_64.sh && \
+    sh Miniconda2-latest-Linux-x86_64.sh -b && \
+    rm Miniconda2-latest-Linux-x86_64.sh && \
+    apt-get remove -y wget bzip2
+
+ENV PATH /root/miniconda2/bin:$PATH
+
+RUN conda config --add channels Bioconda && \
+    pip install numpy scipy scikit-learn biopython && \
+    conda install bowtie2
 
 COPY . /app
 
 WORKDIR /app
 
-RUN pip install --trusted-host pypi.python.org -r requirements.txt
-
-ENTRYPOINT bash "$path_to_probe_generator_project/run.sh" \
+ENTRYPOINT sh "$path_to_probe_generator_project/run.sh" \
                 "$path_to_probe_generator_project/probegenerator/parseMultifasta.py" \
                 $seq_path \
                 $path_to_block_parse \
