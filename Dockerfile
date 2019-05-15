@@ -18,7 +18,7 @@ COPY . /app
 
 WORKDIR /app
 
-ENTRYPOINT sh "$path_to_probe_generator_project/run.sh" \
+ENTRYPOINT bash "$path_to_probe_generator_project/run.sh" \
                 "$path_to_probe_generator_project/probegenerator/parseMultifasta.py" \
                 $seq_path \
                 $path_to_block_parse \
