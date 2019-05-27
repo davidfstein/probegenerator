@@ -3,6 +3,19 @@ from reverseComplement import reverseComplement
 from argparse import ArgumentParser
 import csv
 
+def write_probes_for_alignment_fasta(pairs, desired_spaces):
+    with open('probes_for_alignment.fa', 'w+') as file:
+        for index in range(len(pairs)):
+            file.write('>pair' + str(index + 1) + '\n')
+            spacer = ''.join(['N' for _ in range(0, int(desired_spaces))])
+            file.write(reverseComplement(pairs[index][1][3]) + spacer + reverseComplement(pairs[index][0][3]) + '\n')
+
+def write_probes_with_metadata(probe_metadata):
+    with open('probes_with_meta.txt', 'w+') as file:
+        for pair in probe_metadata:
+            file.write(str(pair[0]) + '\n')
+            file.write(str(pair[1]) + '\n')
+
 def write_probes_to_csv(pairs, pair_meta, tags):
     with open('./' + 'test' + '_probes.csv', 'w+') as probes:
         writer = csv.writer(probes, delimiter=",")
