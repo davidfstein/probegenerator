@@ -1,10 +1,6 @@
-from __future__ import print_function
 from argparse import ArgumentParser
 from reverseComplement import reverseComplement
-import subprocess
-import parseBam
-import sys
-import csv
+import probeWriter
 
 def read_probes(probe_candidates):
     with open(probe_candidates) as probes:
@@ -73,19 +69,6 @@ def append_metadata_to_probes(probes, metadata):
         i += 1
     return probes_with_meta
 
-def write_probes_for_alignment_fasta(pairs, desired_spaces):
-    with open('probes_for_alignment.fa', 'w+') as file:
-        for index in range(len(pairs)):
-            file.write('>pair' + str(index + 1) + '\n')
-            spacer = ''.join(['N' for _ in range(0, int(desired_spaces))])
-            file.write(reverseComplement(pairs[index][1][3]) + spacer + reverseComplement(pairs[index][0][3]) + '\n')
-
-def write_probes_with_metadata(probe_metadata):
-    with open('probes_with_meta.txt', 'w+') as file:
-        for pair in probe_metadata:
-            file.write(str(pair[0]) + '\n')
-            file.write(str(pair[1]) + '\n')
-
 def main():
     userInput = ArgumentParser(description="Requires a path to a bed file from which to read probes. Takes an integer value to determine "
                                             + "the number of spaces between probes in a pair. Also takes initiator sequences and an initiator spacer "
@@ -121,8 +104,8 @@ def main():
                                      right_initiator_seq, right_initiator_spacer)
     pairs_with_meta = append_metadata_to_probes(pairs, pair_meta)
     
-    write_probes_with_metadata(pairs_with_meta)
-    write_probes_for_alignment_fasta(pairs, desired_spaces)
+    probeWriter.write_probes_with_metadata(pairs_with_meta)
+    probeWriter.write_probes_for_alignment_fasta(pairs, desired_spaces)
 
     #TODO Filtering of block parse probes is arbitrary. Consider strategy to optimize 
 
