@@ -4,11 +4,13 @@ from collections import namedtuple
 from Bio import SeqIO
 
 def write_fasta(records):
+    names = []
     for record in records:
-        name = strip_filename_illegal_characters(record.name) + '.fa'
+        name = '../' + strip_filename_illegal_characters(record.name) + '.fa'
         with open(name, 'w+') as file:
             SeqIO.write(record, file, 'fasta')
-    return [strip_filename_illegal_characters(record.name) for record in records]
+        names.append(name[:-3])
+    return names
 
 def multifasta_to_list_of_fasta(multifasta_path):
     with open(multifasta_path, 'rU') as multifasta:
