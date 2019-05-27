@@ -20,7 +20,7 @@ COPY . /app
 WORKDIR /app
 
 ENTRYPOINT bash "$path_to_probe_generator_project/run.sh" \
-                "$path_to_probe_generator_project/probegenerator/parseMultifasta.py" \
+                $path_to_probe_generator_project \
                 $seq_path \
                 $path_to_block_parse \
                 $l \
@@ -31,12 +31,11 @@ ENTRYPOINT bash "$path_to_probe_generator_project/run.sh" \
                 $T \
                 $s \
                 $F \
-                ../output \ 
-                "$path_to_probe_generator_project/probegenerator/probeGenerator.py" \
-                ../output.bed \
                 $desired_spaces \
                 $initiator \
                 $left_init_seq \
                 $left_spacer \
                 $right_init_seq \
-                $right_spacer
+                $right_spacer \
+                $path_to_bowtie_index \
+                $bowtie_index_basename
