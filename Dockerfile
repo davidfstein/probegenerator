@@ -9,10 +9,11 @@ RUN apt-get update && yes|apt-get upgrade && apt-get clean all && \
     apt-get remove -y wget bzip2
 
 ENV PATH /root/miniconda2/bin:$PATH
+ENV BOWTIE2_INDEXES=./M21-transcriptome/
 
 RUN conda config --add channels Bioconda && \
-    pip install numpy scipy scikit-learn biopython && \
-    conda install bowtie2
+    pip install numpy scipy scikit-learn biopython pysam && \
+    conda install bowtie2 
 
 COPY . /app
 
@@ -30,9 +31,9 @@ ENTRYPOINT bash "$path_to_probe_generator_project/run.sh" \
                 $T \
                 $s \
                 $F \
-                ../output \ 
+                ./output \ 
                 "$path_to_probe_generator_project/probegenerator/probeGenerator.py" \
-                ../output.bed \
+                ./output.bed \
                 $desired_spaces \
                 $initiator \
                 $left_init_seq \
