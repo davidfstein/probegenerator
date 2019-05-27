@@ -16,16 +16,22 @@ def write_probes_with_metadata(probe_metadata):
             file.write(str(pair[0]) + '\n')
             file.write(str(pair[1]) + '\n')
 
-def write_probes_to_csv(pairs, pair_meta, tags):
-    with open('./' + 'test' + '_probes.csv', 'w+') as probes:
+def write_probes_to_csv(pairs, tags):
+    with open('./' + pairs[0][0].strip("'") + '_probes.csv', 'w+') as probes:
         writer = csv.writer(probes, delimiter=",")
         writer.writerow(['gene name', 'start', 'stop', 'seq', 'tm', 'spacing', 'set', 'probe', 'amplifier', 'final name', 'left', 'spacer', 'right', 'final probe', 'alignment score', 'off-target score'])
-        write_body(writer, pairs, pair_meta, tags)
+        write_body(writer, pairs, tags)
 
-def write_body(writer, pairs, pair_meta, tags):
-    for i in range(0, len(tags)):
-        writer.writerow(pair_meta[i] + tags[i])
-        writer.writerow(pair_meta[i+1] + tags[i])
+def write_body(writer, pairs, tags):
+    tag_iter = iter(tags)
+    for i in range(0, len(pairs), 2):
+        tag = next(tag_iter)
+        writer.writerow(pairs[i] + tag)
+        writer.writerow(pairs[i+1] + tag)
+
+def convert_file_contents_to_list(path, strip_chars='[]\n', split_char=','):
+	with open(path) as file:
+		return [line.strip(strip_chars).split(split_char) for line in file.readlines()]
 
 def main():
     userInput = ArgumentParser(description="")
@@ -34,24 +40,13 @@ def main():
     requiredNamed.add_argument('-p', '--Probes', action='store', required=True)
 
     args = userInput.parse_args()
-    tags = args.TagFile
-    probes = args.Probes
+    tag_file = args.TagFile
+    probe_file = args.Probes
 
-    parsed_tags = []
-    with open(tags) as tag_file:
-        for tag in tag_file:
-            tag = tag.strip('\n')
-            tag = tag.split(',')
-            parsed_tags.append(tag)
+    parsed_tags = convert_file_contents_to_list(tag_file)
+    parsed_probes = convert_file_contents_to_list(probe_file)
 
-    parsed_probes = []
-    with open(probes) as probe_file:
-        for probe in probe_file:
-            probe = probe.strip("[]\n")
-            probe = probe.split(',')
-            parsed_probes.append(probe)
-
-    write_probes_to_csv([], parsed_probes, parsed_tags)
+    write_probes_to_csv(parsed_probes, parsed_tags)
 
 if __name__ == '__main__':
     main()

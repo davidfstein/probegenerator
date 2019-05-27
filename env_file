@@ -1,5 +1,5 @@
 path_to_probe_generator_project=./probegenerator
-seq_path=./probegenerator/probegenerator/res/trp53.fa
+seq_path=./probegenerator/probegenerator/res/mouse_test.fa
 path_to_block_parse=./OligoMiner/blockParse.py
 initiator=B4
 left_init_seq=CCTCAACCTACCTCCAAC
