@@ -22,7 +22,7 @@ def extract_alignment_scores(reads):
     return scores
             
 def write_scores_to_disk(scores):
-    with open('probe_scores.txt', 'w+') as file:
+    with open('../probe_scores.txt', 'w+') as file:
         for score in scores:
             file.write(str(score) + '\n')
 

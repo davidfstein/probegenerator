@@ -31,9 +31,9 @@ ENTRYPOINT bash "$path_to_probe_generator_project/run.sh" \
                 $T \
                 $s \
                 $F \
-                ./output \ 
+                ../output \ 
                 "$path_to_probe_generator_project/probegenerator/probeGenerator.py" \
-                ./output.bed \
+                ../output.bed \
                 $desired_spaces \
                 $initiator \
                 $left_init_seq \
