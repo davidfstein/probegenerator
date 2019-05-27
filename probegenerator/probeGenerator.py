@@ -6,20 +6,20 @@ import parseBam
 import sys
 import csv
 
-def getProbePairs(input_path, desired_spaces, initiator_name, left_initiator_seq, left_initiator_spacer, 
-                    right_initiator_seq, right_initiator_spacer):
-    seqf=[]
-    probeend = 0
-    with open (input_path) as gene:
-        seq = [line.rstrip("\n").split("\t") for line in gene if len(line.rstrip("\n").split("\t")) > 0]
-        for seqn in seq:
-            if int(seqn[1]) >= probeend:
-                seqf.append(seqn)
-                probeend = (int(seqn[2]) + int(desired_spaces))
-    pairs = create_pairs(seqf)
-    return pairs
+def read_probes(probe_candidates):
+    with open(probe_candidates) as probes:
+        return [line.rstrip("\n").split("\t") for line in probes if len(line.rstrip("\n").split("\t")) > 0]
 
-def create_pairs(sequences): 
+def filter_probes_by_spaces(probes, desired_spaces):
+    filtered_probes = []
+    probe_end = 0
+    for probe in probes:
+        if int(probe[1]) >= probe_end:
+            filtered_probes.append(probe)
+            probe_end = int(probe[2]) + desired_spaces
+    return filtered_probes
+
+def get_probe_pairs(sequences, desired_spaces): 
     if not sequences:
         raise Exception("Empty sequence list")
     
@@ -31,14 +31,14 @@ def create_pairs(sequences):
         if pairs and previous_sequence in pairs[-1]:
             previous_sequence = sequence
             continue
-        if (cur_start - prev_end == 3):
+        if (cur_start - prev_end == desired_spaces):
             pairs.append([previous_sequence, sequence])
         previous_sequence = sequence    
 
     return pairs
 
-def create_pair_metadata(pairs, desired_spaces, initiator_name, left_initiator_seq, 
-                         left_initiator_spacer, right_initiator_seq, right_initiator_spacer):
+def create_pair_metadata(pairs, initiator_name, left_initiator_seq, left_initiator_spacer, 
+                         right_initiator_seq, right_initiator_spacer):
     last_seq_end = 0
     pair_metadata = []
     for index in range(0, len(pairs)):
@@ -77,7 +77,7 @@ def write_probes_for_alignment_fasta(pairs, desired_spaces):
     with open('probes_for_alignment.fa', 'w+') as file:
         for index in range(len(pairs)):
             file.write('>pair' + str(index + 1) + '\n')
-            spacer = ''.join(['N' for i in range(0, int(desired_spaces))])
+            spacer = ''.join(['N' for _ in range(0, int(desired_spaces))])
             file.write(reverseComplement(pairs[index][1][3]) + spacer + reverseComplement(pairs[index][0][3]) + '\n')
 
 def write_probes_with_metadata(probe_metadata):
@@ -107,19 +107,24 @@ def main():
                                 help="The right initiator spacer")
     args = userInput.parse_args()
     input_path = args.Path
-    desired_spaces = args.Spaces
+    desired_spaces = int(args.Spaces)
     initiator_name = args.Initiator
     left_initiator_seq = args.LeftSeq
     left_initiator_spacer = args.LeftSpacer
     right_initiator_seq = args.RightSeq
     right_initiator_spacer = args.RightSpacer
+
+    candidate_probes = read_probes(input_path)
+    filtered_probes = filter_probes_by_spaces(candidate_probes, desired_spaces)
+    pairs = get_probe_pairs(filtered_probes, desired_spaces)
+    pair_meta = create_pair_metadata(pairs, initiator_name, left_initiator_seq, left_initiator_spacer, 
+                                     right_initiator_seq, right_initiator_spacer)
+    pairs_with_meta = append_metadata_to_probes(pairs, pair_meta)
     
-    pairs = getProbePairs(input_path, desired_spaces, initiator_name, left_initiator_seq, left_initiator_spacer, right_initiator_seq, right_initiator_spacer)
-    pair_metadata = create_pair_metadata(pairs, desired_spaces, initiator_name, left_initiator_seq, left_initiator_spacer, right_initiator_seq, right_initiator_spacer)
-    pairs_with_metadata = append_metadata_to_probes(pairs, pair_metadata)
-    write_probes_with_metadata(pairs_with_metadata)
+    write_probes_with_metadata(pairs_with_meta)
     write_probes_for_alignment_fasta(pairs, desired_spaces)
 
+    #TODO Filtering of block parse probes is arbitrary. Consider strategy to optimize 
 
 if __name__ == '__main__':
     main()
