@@ -1,5 +1,8 @@
+from __future__ import print_function
 from argparse import ArgumentParser
 from reverseComplement import reverseComplement
+import subprocess
+import parseBam
 import sys
 import csv
 
@@ -14,7 +17,7 @@ def getProbePairs(input_path, desired_spaces, initiator_name, left_initiator_seq
                 seqf.append(seqn)
                 probeend = (int(seqn[2]) + int(desired_spaces))
     pairs = create_pairs(seqf)
-    write_probes_to_csv(pairs, desired_spaces, initiator_name, left_initiator_seq, left_initiator_spacer, right_initiator_seq, right_initiator_spacer)
+    return pairs
 
 def create_pairs(sequences): 
     if not sequences:
@@ -34,14 +37,10 @@ def create_pairs(sequences):
 
     return pairs
 
-def write_probes_to_csv(seq_pairs, desired_spaces, initiator_name, left_initiator_seq, left_initiator_spacer, right_initiator_seq, right_initiator_spacer):
-    with open('./' + seq_pairs[0][0][0] + '_probes.csv', 'w+') as probes:
-        writer = csv.writer(probes, delimiter=",")
-        writer.writerow(['gene name', 'start', 'stop', 'seq', 'tm', 'spacing', 'set', 'probe', 'amplifier', 'final name', 'left', 'spacer', 'right', 'final probe'])
-        write_body(writer, seq_pairs, initiator_name, left_initiator_seq, left_initiator_spacer, right_initiator_seq, right_initiator_spacer)
-
-def write_body(writer, pairs, initiator_name, left_initiator_seq, left_initiator_spacer, right_initiator_seq, right_initiator_spacer):
+def create_pair_metadata(pairs, desired_spaces, initiator_name, left_initiator_seq, 
+                         left_initiator_spacer, right_initiator_seq, right_initiator_spacer):
     last_seq_end = 0
+    pair_metadata = []
     for index in range(0, len(pairs)):
         left = pairs[index][0]
         left_seq_reverse_complement = reverseComplement(left[3])
@@ -54,35 +53,38 @@ def write_body(writer, pairs, initiator_name, left_initiator_seq, left_initiator
         right_final_name = right[0] + "_" + str(set_num) + "." + str(2) + "_" + initiator_name 
         left_final_probe = left_initiator_seq + left_initiator_spacer + left_seq_reverse_complement
         right_final_probe = right_seq_reverse_complement + right_initiator_spacer + right_initiator_seq
-        writer.writerow([left[0], 
-                        left[1], 
-                        left[2], 
-                        left_seq_reverse_complement, 
-                        left[4], 
-                        left_space, 
-                        set_num, 
-                        1, 
-                        "_" + initiator_name, 
-                        left_final_name, 
-                        left_initiator_seq, 
-                        left_initiator_spacer, 
-                        left_seq_reverse_complement, 
-                        left_final_probe])
-        writer.writerow([right[0], 
-                        right[1], 
-                        right[2], 
-                        right_seq_reverse_complement, 
-                        right[4], 
-                        right_space, 
-                        set_num, 
-                        2, 
-                        "_" + initiator_name, 
-                        right_final_name, 
-                        right_seq_reverse_complement, 
-                        right_initiator_spacer, 
-                        right_initiator_seq, 
-                        right_final_probe])
+        left_meta = [left_space, set_num, left_seq_reverse_complement, '_' + initiator_name, 
+                     left_final_name, left_initiator_seq, left_initiator_spacer, 
+                     left_seq_reverse_complement, left_final_probe]
+        right_meta = [right_space, set_num, right_seq_reverse_complement, '_' + initiator_name, 
+                      right_final_name, right_seq_reverse_complement, right_initiator_spacer, 
+                      right_initiator_seq, right_final_probe]
+        pair_metadata.append([left_meta, right_meta])
         last_seq_end = right[2]
+    return pair_metadata
+
+def append_metadata_to_probes(probes, metadata):
+    i = 0
+    probes_with_meta = []
+    while i < len(probes) and i < len(metadata):
+        first = probes[i][0] + metadata[i][0]
+        second = probes[i][1] + metadata[i][1]
+        probes_with_meta.append([first, second])
+        i += 1
+    return probes_with_meta
+
+def write_probes_for_alignment_fasta(pairs, desired_spaces):
+    with open('probes_for_alignment.fa', 'w+') as file:
+        for index in range(len(pairs)):
+            file.write('>pair' + str(index + 1) + '\n')
+            spacer = ''.join(['N' for i in range(0, int(desired_spaces))])
+            file.write(reverseComplement(pairs[index][1][3]) + spacer + reverseComplement(pairs[index][0][3]) + '\n')
+
+def write_probes_with_metadata(probe_metadata):
+    with open('probes_with_meta.txt', 'w+') as file:
+        for pair in probe_metadata:
+            file.write(str(pair[0]) + '\n')
+            file.write(str(pair[1]) + '\n')
 
 def main():
     userInput = ArgumentParser(description="Requires a path to a bed file from which to read probes. Takes an integer value to determine "
@@ -112,7 +114,12 @@ def main():
     right_initiator_seq = args.RightSeq
     right_initiator_spacer = args.RightSpacer
     
-    getProbePairs(input_path, desired_spaces, initiator_name, left_initiator_seq, left_initiator_spacer, right_initiator_seq, right_initiator_spacer)
+    pairs = getProbePairs(input_path, desired_spaces, initiator_name, left_initiator_seq, left_initiator_spacer, right_initiator_seq, right_initiator_spacer)
+    pair_metadata = create_pair_metadata(pairs, desired_spaces, initiator_name, left_initiator_seq, left_initiator_spacer, right_initiator_seq, right_initiator_spacer)
+    pairs_with_metadata = append_metadata_to_probes(pairs, pair_metadata)
+    write_probes_with_metadata(pairs_with_metadata)
+    write_probes_for_alignment_fasta(pairs, desired_spaces)
+
 
 if __name__ == '__main__':
     main()
