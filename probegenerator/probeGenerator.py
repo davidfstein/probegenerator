@@ -106,6 +106,7 @@ def main():
     
     probeWriter.write_probes_with_metadata(pairs_with_meta)
     probeWriter.write_probes_for_alignment_fasta(pairs, desired_spaces)
+    probeWriter.write_probes_to_csv(pairs_with_meta)
 
     #TODO Filtering of block parse probes is arbitrary. Consider strategy to optimize 
 
