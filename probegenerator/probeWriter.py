@@ -19,7 +19,7 @@ def write_probes_with_metadata(probe_metadata):
 def write_probes_to_csv(pairs):
     with open('./' + pairs[0][0][0].strip("'") + '_probes.csv', 'w+') as probes:
         writer = csv.writer(probes, delimiter=",")
-        writer.writerow(['gene name', 'start', 'stop', 'seq', 'tm', 'spacing', 'set', 'probe', 'amplifier', 'final name', 'left', 'spacer', 'right', 'final probe'])
+        writer.writerow(['gene name', 'start', 'stop', 'seq', 'tm', 'spacing', 'set', 'probe', 'amplifier', 'final name', 'left', 'spacer', 'right', 'final probe', 'In Orf?'])
         write_body(writer, pairs)
 
 def write_body(writer, pairs):

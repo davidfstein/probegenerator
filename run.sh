@@ -5,7 +5,7 @@ for fasta in "${arr[@]}"
 do 
     # Consider turning off overlap mode of blockParse
     python $3 -f $fasta.fa -l $4 -L $5 -g $6 -G $7 -t $8 -T $9 -s ${10} -F ${11} -O -b -o ../output
-    python $1/probegenerator/probeGenerator.py -p ../output.bed -s ${12} -i ${13} -l ${14} --LeftSpacer ${15} -r ${16} --RightSpacer ${17}
-    bowtie2 -x ${19} -U ../probes_for_alignment.fa -f --very-sensitive -k 5 --int-quals --no-1mm-upfront --score-min L,-10,-0.6 > ./output.bam
+    python $1/probegenerator/probeGenerator.py -p ../output.bed -f $fasta.fa -s ${12} -i ${13} -l ${14} --LeftSpacer ${15} -r ${16} --RightSpacer ${17}
+    bowtie2 -x ${19} -U ../probes_for_alignment.fa -f --very-sensitive -k 5 --int-quals --no-1mm-upfront --score-min L,-40,-0.6 > ./output.bam
 done
 
