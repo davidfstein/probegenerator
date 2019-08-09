@@ -1,5 +1,6 @@
 from argparse import ArgumentParser
 from reverseComplement import reverseComplement
+from orf_finder import find_start_codons, find_longest_orf
 import probeWriter
 
 def read_probes(probe_candidates):
@@ -34,14 +35,16 @@ def get_probe_pairs(sequences, desired_spaces):
     return pairs
 
 def create_pair_metadata(pairs, initiator_name, left_initiator_seq, left_initiator_spacer, 
-                         right_initiator_seq, right_initiator_spacer):
+                         right_initiator_seq, right_initiator_spacer, orf_start, orf_length):
     last_seq_end = 0
     pair_metadata = []
     for index in range(0, len(pairs)):
         left = pairs[index][0]
         left_seq_reverse_complement = reverseComplement(left[3])
+        left_in_orf = is_probe_in_orf(int(left[1]), len(left[3]), orf_start, orf_length)
         right = pairs[index][1]
         right_seq_reverse_complement = reverseComplement(right[3])
+        right_in_orf = is_probe_in_orf(int(right[1]), len(right[3]), orf_start, orf_length)
         left_space = int(left[1]) - int(last_seq_end)
         right_space = int(right[1]) - int(left[2])
         set_num = index + 1
@@ -51,10 +54,10 @@ def create_pair_metadata(pairs, initiator_name, left_initiator_seq, left_initiat
         right_final_probe = right_seq_reverse_complement + right_initiator_spacer + right_initiator_seq
         left_meta = [left_space, set_num, left_seq_reverse_complement, '_' + initiator_name, 
                      left_final_name, left_initiator_seq, left_initiator_spacer, 
-                     left_seq_reverse_complement, left_final_probe]
+                     left_seq_reverse_complement, left_final_probe, left_in_orf]
         right_meta = [right_space, set_num, right_seq_reverse_complement, '_' + initiator_name, 
                       right_final_name, right_seq_reverse_complement, right_initiator_spacer, 
-                      right_initiator_seq, right_final_probe]
+                      right_initiator_seq, right_final_probe, right_in_orf]
         pair_metadata.append([left_meta, right_meta])
         last_seq_end = right[2]
     return pair_metadata
@@ -69,6 +72,9 @@ def append_metadata_to_probes(probes, metadata):
         i += 1
     return probes_with_meta
 
+def is_probe_in_orf(probe_start, probe_length, orf_start, orf_length):
+    return probe_start >= orf_start and probe_start + probe_length <= orf_start + orf_length 
+
 def main():
     userInput = ArgumentParser(description="Requires a path to a bed file from which to read probes. Takes an integer value to determine "
                                             + "the number of spaces between probes in a pair. Also takes initiator sequences and an initiator spacer "
@@ -76,6 +82,8 @@ def main():
     requiredNamed = userInput.add_argument_group('required arguments')
     requiredNamed.add_argument('-p', '--Path', action='store', required=True,
                                 help='The bed file with probe sequences')
+    requiredNamed.add_argument('-f', '--Fasta', action='store', required=True,
+                                help='The fasta file with the gene of interest')
     requiredNamed.add_argument('-s', '--Spaces', action='store', required=True,
                                 help="Desired number of spaces between probes in a pair")
     requiredNamed.add_argument('-i', '--Initiator', action='store', required=True,
@@ -90,6 +98,7 @@ def main():
                                 help="The right initiator spacer")
     args = userInput.parse_args()
     input_path = args.Path
+    fasta = args.Fasta
     desired_spaces = int(args.Spaces)
     initiator_name = args.Initiator
     left_initiator_seq = args.LeftSeq
@@ -97,16 +106,24 @@ def main():
     right_initiator_seq = args.RightSeq
     right_initiator_spacer = args.RightSpacer
 
-    candidate_probes = read_probes(input_path)
-    filtered_probes = filter_probes_by_spaces(candidate_probes, desired_spaces)
-    pairs = get_probe_pairs(filtered_probes, desired_spaces)
-    pair_meta = create_pair_metadata(pairs, initiator_name, left_initiator_seq, left_initiator_spacer, 
-                                     right_initiator_seq, right_initiator_spacer)
-    pairs_with_meta = append_metadata_to_probes(pairs, pair_meta)
-    
-    probeWriter.write_probes_with_metadata(pairs_with_meta)
-    probeWriter.write_probes_for_alignment_fasta(pairs, desired_spaces)
-    probeWriter.write_probes_to_csv(pairs_with_meta)
+    with open(fasta) as file:
+        lines = [line.strip('\n') for line in file.readlines()][1:]
+        sequence = ''
+        for line in lines:
+            sequence += line
+        start_codons = find_start_codons(sequence)
+        start_orf, orf_length = find_longest_orf(sequence, start_codons)
+
+        candidate_probes = read_probes(input_path)
+        filtered_probes = filter_probes_by_spaces(candidate_probes, desired_spaces)
+        pairs = get_probe_pairs(filtered_probes, desired_spaces)
+        pair_meta = create_pair_metadata(pairs, initiator_name, left_initiator_seq, left_initiator_spacer, 
+                                        right_initiator_seq, right_initiator_spacer, start_orf, orf_length)
+        pairs_with_meta = append_metadata_to_probes(pairs, pair_meta)
+        
+        probeWriter.write_probes_with_metadata(pairs_with_meta)
+        probeWriter.write_probes_for_alignment_fasta(pairs, desired_spaces)
+        probeWriter.write_probes_to_csv(pairs_with_meta)
 
     #TODO Filtering of block parse probes is arbitrary. Consider strategy to optimize 
 
