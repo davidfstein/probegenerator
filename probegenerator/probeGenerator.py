@@ -16,6 +16,7 @@ def filter_probes_by_spaces(probes, desired_spaces):
             probe_end = int(probe[2]) + desired_spaces
     return filtered_probes
 
+
 def get_probe_pairs(sequences, desired_spaces): 
     if not sequences:
         raise Exception("Empty sequence list")
