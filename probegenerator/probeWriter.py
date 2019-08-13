@@ -7,7 +7,7 @@ def write_probes_for_alignment_fasta(pairs, desired_spaces):
     with open('../probes_for_alignment.fa', 'w+') as file:
         for index in range(len(pairs)):
             file.write('>pair' + str(index + 1) + '\n')
-            spacer = ''.join(['N' for _ in range(0, int(desired_spaces))])
+            spacer = ''.join(['N' for _ in range(0, int(desired_spaces) - 1)])
             file.write(reverseComplement(pairs[index][1][3]) + spacer + reverseComplement(pairs[index][0][3]) + '\n')
 
 def write_probes_with_metadata(probe_metadata):
