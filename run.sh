@@ -8,7 +8,7 @@ do
     splitFilePathArr=(${fasta//\// })
     mkdir "${splitFilePathArr[1]}"
     python $1/probegenerator/probeGenerator.py -p ../output.bed -f $fasta.fa -s ${12} -i ${13} -l ${14} --LeftSpacer ${15} -r ${16} --RightSpacer ${17}
-    bowtie2 -x ${19} -U ../probes_for_alignment.fa -t -f --very-sensitive -k 5 --int-quals --no-1mm-upfront --score-min L,-40,-0.6 -p 4 --no-sq > ./"${splitFilePathArr[1]}"/"${splitFilePathArr[1]}".bam
+    bowtie2 -x ${19} -U ../probes_for_alignment.fa -t -f --very-sensitive -k 5 --int-quals --no-1mm-upfront --score-min L,-40,-0.6 -p 4 > ./"${splitFilePathArr[1]}"/"${splitFilePathArr[1]}".bam
     mv "${splitFilePathArr[1]}"_probes.csv ./"${splitFilePathArr[1]}"/
 done
 
