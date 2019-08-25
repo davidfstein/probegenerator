@@ -32,20 +32,20 @@ def remove_non_specific_probes(csv_path, specific_probes):
 def get_final_probes(probes):
     final_probes = []
     orf_probes = get_pairs_in_orf(probes)
-    if len(orf_probes) >= 50:
-        final_probes.extend(orf_probes[0:50])
+    if len(orf_probes) >= 100:
+        final_probes.extend(orf_probes[0:100])
         return final_probes
     else:
         final_probes.extend(orf_probes)
     three_utr_probes = get_pairs_in_three_utr(probes)
-    probes_needed = 50 - len(final_probes)
+    probes_needed = 100 - len(final_probes)
     if len(three_utr_probes) >= probes_needed:
         final_probes.extend(three_utr_probes[0:probes_needed])
         return final_probes
     else:
         final_probes.extend(three_utr_probes)
     five_utr_probes = get_pairs_in_five_utr(probes)
-    probes_needed = 50 - len(final_probes)
+    probes_needed = 100 - len(final_probes)
     if len(five_utr_probes) >= probes_needed:
         final_probes.extend(five_utr_probes[0:probes_needed])
         return final_probes
@@ -98,12 +98,14 @@ def get_final_orf_index(probes):
 def pair_in_three_utr(pair, final_orf_index):
     return int(pair[0]['start']) > final_orf_index
 
-def write_specific_probes(probes):
-    with open('h.txt', 'w+') as f:
+def write_specific_probes(probes, initiator):
+    name = probes[0]['gene name'].split(" ")[0]
+    with open(name + '.fasta', 'w+') as f:
+        f.write(">" + name + " probes initiator " + initiator + "\n")
         for i in range(0, len(probes), 2):
             f.write(probes[i]['final probe'] + '\n')
             f.write(probes[i+1]['final probe'] + '\n')
-            f.write(probes[i]['set'] + '\n')
+        print(name + '.fasta')
 
 def extract_alignment_scores(reads):
     scores = []
@@ -130,14 +132,16 @@ def main():
     requiredNamed = userInput.add_argument_group('required arguments')
     requiredNamed.add_argument('-p', '--Path', action='store', required=True)
     requiredNamed.add_argument('-p2', '--Path2', action='store', required=True)
+    requiredNamed.add_argument('-i', '--Initiator', action='store', required=True)
     args = userInput.parse_args()
     input_path = args.Path
     path = args.Path2
+    initiator = args.Initiator
     reads = parse_alignment_bam(path)
     filtered = filter_reads_by_alignment_qual(reads)
     good_probes = remove_non_specific_probes(input_path, filtered)
     final_probes = get_final_probes(good_probes)
-    write_specific_probes(final_probes)
+    write_specific_probes(final_probes, initiator)
 
 if __name__ == '__main__':
     main()
