@@ -9,7 +9,6 @@ RUN apt-get update && yes|apt-get upgrade && apt-get clean all && \
     apt-get remove -y wget bzip2
 
 ENV PATH /root/miniconda2/bin:$PATH
-ENV BOWTIE2_INDEXES=./M21-transcriptome/
 
 RUN conda config --add channels Bioconda && \
     pip install numpy scipy scikit-learn biopython pysam && \
