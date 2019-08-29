@@ -2,6 +2,7 @@ from __future__ import print_function
 from reverseComplement import reverseComplement
 from argparse import ArgumentParser
 import csv
+import os
 
 def write_probes_for_alignment_fasta(pairs, desired_spaces):
     with open('../probes_for_alignment.fa', 'w+') as file:
@@ -16,8 +17,9 @@ def write_probes_with_metadata(probe_metadata):
             file.write(str(pair[0]) + '\n')
             file.write(str(pair[1]) + '\n')
 
-def write_probes_to_csv(pairs):
-    with open('./' + pairs[0][0][0].split(" ")[0] + '_probes.csv', 'w+') as probes:
+def write_probes_to_csv(pairs, path='.'):
+    name = pairs[0][0][0] + '_probes.csv'
+    with open(os.path.join(path, name), 'w+') as probes:
         writer = csv.writer(probes, delimiter=",")
         writer.writerow(['gene name', 'start', 'stop', 'seq', 'tm', 'spacing', 'set', 'probe', 'amplifier', 'final name', 'left', 'spacer', 'right', 'final probe', 'In Orf?'])
         write_body(writer, pairs)
