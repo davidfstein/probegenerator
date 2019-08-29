@@ -110,13 +110,7 @@ def main():
     candidate_probes = read_probes(input_path)
     filtered_probes = filter_probes_by_spaces(candidate_probes, desired_spaces)
     pairs = get_probe_pairs(filtered_probes, desired_spaces)
-    #     pair_meta = create_pair_metadata(pairs, initiator_name, left_initiator_seq, left_initiator_spacer, 
-    #                                     right_initiator_seq, right_initiator_spacer, start_orf, orf_length)
-    #     pairs_with_meta = append_metadata_to_probes(pairs, pair_meta)
-        
-    #     probeWriter.write_probes_with_metadata(pairs_with_meta)
-    #     probeWriter.write_probes_for_alignment_fasta(pairs, desired_spaces)
-    #     probeWriter.write_probes_to_csv(pairs_with_meta)
+    probeWriter.write_probes_for_alignment_fasta(pairs, desired_spaces)
 
     initiators = []
     with open(initiator_file) as file:
