@@ -11,12 +11,6 @@ def write_probes_for_alignment_fasta(pairs, desired_spaces):
             spacer = ''.join(['N' for _ in range(0, int(desired_spaces) - 1)])
             file.write(reverseComplement(pairs[index][1][3]) + spacer + reverseComplement(pairs[index][0][3]) + '\n')
 
-def write_probes_with_metadata(probe_metadata):
-    with open('../probes_with_meta.txt', 'w+') as file:
-        for pair in probe_metadata:
-            file.write(str(pair[0]) + '\n')
-            file.write(str(pair[1]) + '\n')
-
 def write_probes_to_csv(pairs, path='.'):
     name = pairs[0][0][0] + '_probes.csv'
     with open(os.path.join(path, name), 'w+') as probes:
