@@ -1,3 +1,4 @@
+from __future__ import print_function
 from shutil import copyfile
 from argparse import ArgumentParser
 import csv
@@ -20,9 +21,7 @@ def main():
             initiators.append([ row['initiator'], row['left sequence'], row['left spacer'], row['right sequence'], row['right spacer'] ]) 
     
     for initiator in initiators:
-        copyfile(copy_file_name, os.path.join('output', initiator[0], copy_file_name))
-
-    os.remove(copy_file_name)
+        copyfile(copy_file_name + '.bam', os.path.join('/data', 'output', initiator[0], copy_file_name, copy_file_name + '.bam'))
 
 if __name__ == '__main__':
     main()
