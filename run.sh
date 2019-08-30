@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+if [ -d "/data/output" ] 
+then
+    echo "Please remove or move the output folder from your mount directory." && exit 1
+fi 
+
 mkdir /data/output
 fasta_files=$(python /app/probegenerator/probegenerator/parseMultifasta.py -f $1)
 declare -a arr=($fasta_files)
