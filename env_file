@@ -1,9 +1,9 @@
 path_to_probe_generator_project=./probegenerator
-seq_path=/data/Mouse.fa
+seq_path=Mouse.fa
 path_to_block_parse=./OligoMiner/blockParse.py
-path_to_bowtie_index=/data/mouse_genome
+path_to_bowtie_index=mouse_genome
 bowtie_index_basename=mouse_genome
-initiator=/data/initiators.csv
+initiator=initiators.csv
 desired_spaces=3
 l=25
 L=25
