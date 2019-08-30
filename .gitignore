@@ -1,7 +1,5 @@
 .vscode
 
-*.csv
-
 .DS_STORE
 
 *.pyc
