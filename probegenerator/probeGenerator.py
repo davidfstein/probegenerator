@@ -123,11 +123,12 @@ def main():
         pair_meta = create_pair_metadata(pairs, start_orf, orf_length, *initiator)
         pairs_with_meta[initiator[0]] = append_metadata_to_probes(pairs, pair_meta)
     
-    os.mkdir('output')
     for initiator in pairs_with_meta:
-        os.mkdir(os.path.join('output', initiator))
-        os.mkdir(os.path.join('output', initiator, pairs[0][0][0]))
-        probeWriter.write_probes_to_csv(pairs_with_meta[initiator], os.path.join('output', initiator, pairs[0][0][0]))
+        if not os.path.isdir(os.path.join('/data', 'output', initiator)):
+            os.mkdir(os.path.join('/data', 'output', initiator))
+        if not os.path.isdir(os.path.join('/data', 'output', initiator, pairs[0][0][0].split(" ")[0])):
+            os.mkdir(os.path.join('/data', 'output', initiator, pairs[0][0][0].split(" ")[0]))
+        probeWriter.write_probes_to_csv(pairs_with_meta[initiator], os.path.join('/data', 'output', initiator, pairs[0][0][0].split(" ")[0]))
 
     #TODO Filtering of block parse probes is arbitrary. Consider strategy to optimize 
 
