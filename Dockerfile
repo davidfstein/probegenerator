@@ -12,7 +12,8 @@ ENV PATH /root/miniconda2/bin:$PATH
 
 RUN conda config --add channels Bioconda && \
     pip install numpy scipy scikit-learn biopython && \
-    conda install bowtie2 pysam
+    conda install bowtie2 pysam && \
+    mkdir /data
 
 COPY . /app
 
