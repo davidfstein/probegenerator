@@ -6,6 +6,8 @@ import probeWriter
 import csv
 import os
 
+output_base_path = os.path.join('/data', 'output')
+
 def read_probes(probe_candidates):
     with open(probe_candidates) as probes:
         return [line.rstrip("\n").split("\t") for line in probes if len(line.rstrip("\n").split("\t")) > 0]
@@ -79,6 +81,14 @@ def append_metadata_to_probes(probes, metadata):
 def is_probe_in_orf(probe_start, probe_length, orf_start, orf_length):
     return probe_start >= orf_start and probe_start + probe_length <= orf_start + orf_length 
 
+def parse_initiators(initiator_file):
+    initiators = []
+    with open(initiator_file) as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            initiators.append([ row['initiator'], row['left sequence'], row['left spacer'], row['right sequence'], row['right spacer'] ])
+    return initiators
+
 def main():
     userInput = ArgumentParser(description="Requires a path to a bed file from which to read probes. Takes an integer value to determine "
                                             + "the number of spaces between probes in a pair. Also takes initiator sequences and an initiator spacer "
@@ -104,6 +114,7 @@ def main():
     sequence = ''
     for line in lines:
         sequence += line
+
     start_codons = find_start_codons(sequence)
     start_orf, orf_length = find_longest_orf(sequence, start_codons)
 
@@ -112,23 +123,20 @@ def main():
     pairs = get_probe_pairs(filtered_probes, desired_spaces)
     probeWriter.write_probes_for_alignment_fasta(pairs, desired_spaces)
 
-    initiators = []
-    with open(initiator_file) as file:
-        reader = csv.DictReader(file)
-        for row in reader:
-            initiators.append([ row['initiator'], row['left sequence'], row['left spacer'], row['right sequence'], row['right spacer'] ])
-    
+    initiators = parse_initiators(initiator_file)
+
     pairs_with_meta = {}
     for initiator in initiators:
         pair_meta = create_pair_metadata(pairs, start_orf, orf_length, *initiator)
         pairs_with_meta[initiator[0]] = append_metadata_to_probes(pairs, pair_meta)
     
     for initiator in pairs_with_meta:
-        if not os.path.isdir(os.path.join('/data', 'output', initiator)):
-            os.mkdir(os.path.join('/data', 'output', initiator))
-        if not os.path.isdir(os.path.join('/data', 'output', initiator, pairs[0][0][0].split(" ")[0])):
-            os.mkdir(os.path.join('/data', 'output', initiator, pairs[0][0][0].split(" ")[0]))
-        probeWriter.write_probes_to_csv(pairs_with_meta[initiator], os.path.join('/data', 'output', initiator, pairs[0][0][0].split(" ")[0]))
+        sequence_name = pairs[0][0][0].split(" ")[0]
+        if not os.path.isdir(os.path.join(output_base_path, initiator)):
+            os.mkdir(os.path.join(output_base_path, initiator))
+        if not os.path.isdir(os.path.join(output_base_path, initiator, sequence_name)):
+            os.mkdir(os.path.join(output_base_path, initiator, sequence_name))
+        probeWriter.write_probes_to_csv(pairs_with_meta[initiator], os.path.join(output_base_path, initiator, sequence_name))
 
     #TODO Filtering of block parse probes is arbitrary. Consider strategy to optimize 
 
