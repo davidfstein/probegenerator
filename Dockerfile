@@ -19,10 +19,8 @@ COPY . /app
 
 WORKDIR /app
 
-ENTRYPOINT bash "$path_to_probe_generator_project/run.sh" \
-                $path_to_probe_generator_project \
+ENTRYPOINT bash /app/probegenerator/run.sh \
                 $seq_path \
-                $path_to_block_parse \
                 $l \
                 $L \
                 $g \
