@@ -11,17 +11,16 @@ RUN apt-get update && yes|apt-get upgrade && apt-get clean all && \
 ENV PATH /root/miniconda2/bin:$PATH
 
 RUN conda config --add channels Bioconda && \
-    pip install numpy scipy scikit-learn biopython pysam && \
-    conda install bowtie2 
+    pip install numpy scipy scikit-learn biopython && \
+    conda install bowtie2 pysam && \
+    mkdir /data
 
 COPY . /app
 
 WORKDIR /app
 
-ENTRYPOINT bash "$path_to_probe_generator_project/run.sh" \
-                $path_to_probe_generator_project \
+ENTRYPOINT bash /app/probegenerator/run.sh \
                 $seq_path \
-                $path_to_block_parse \
                 $l \
                 $L \
                 $g \
@@ -32,9 +31,5 @@ ENTRYPOINT bash "$path_to_probe_generator_project/run.sh" \
                 $F \
                 $desired_spaces \
                 $initiator \
-                $left_init_seq \
-                $left_spacer \
-                $right_init_seq \
-                $right_spacer \
                 $path_to_bowtie_index \
                 $bowtie_index_basename

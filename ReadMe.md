@@ -1,5 +1,5 @@
 # Prepare Mount Folder
-Create a folder called whatever you like. I will refer to it as MountFolder. Clone ProbeGenerator and OligoMiner from github into MountFolder.
+Create a folder called whatever you like. I will refer to it as MountFolder. Place the fasta file[s] with your sequences of interest in this folder and your bowtie2 index. This folder is where the program output will be written.
 
 # Build bowtie2 index
 ```
@@ -12,33 +12,24 @@ Move the folder you created into the MountFolder.
 The env_file stores arguments to be passed to the container when it is run.
 The arguments 'l', 'L', 'g', 'G', 't', 'T', 's', and 'F' all correspond to arguments to the OligoMiner blockParse script, and their descriptions can be found in OligoMiner.
 - 'seq_path' corresponds to the path to the fasta file that holds your sequence[s].
-- 'path_to_block_parse' corresponds to the path to the blockParse script in OligoMiner.
-- 'path_to_probe_generator_project' corresponds to the path to the probegenerator project.
 - 'path_to_bowtie_index' the path to the folder containing your reference index.
 - 'bowtie_index_basename' the name of your reference index.
-- 'initiator' correspond to the name of the amplifier you would like to use.
-- 'left_init_seq' is the left amplifier sequence.
-- 'left_spacer' is the spacer to be used with the left amplifier sequence.
-- 'right_init_seq' is the right amplifier sequence.
-- 'right_spacer' is the spacer to be used with the right amplifier sequence.  
+- 'initiator' the path to the file containing your initiators.  
   
 Update the env file with the appropriate arguments for your needs. 
 
 # Run the container
 ```
-docker run --env-file={path/to/env_file} -v ~/{path/to/MountFolder}:/app dstein96/probegenerator:0.6
+docker run --env-file={path/to/env_file} -v ~/{path/to/MountFolder}:/data dstein96/probegenerator:0.7
 ```
-After running the container you should see a csv file containing the probe information in your MountFolder.
+After running the container you should see a folder called output containing the probe information in your MountFolder.
+
+# The iniator file
+See the file called "initiator.csv" in the res/examples directory in this project for an example of what your initiator file should look like. Keep your headers as you see them in the example file. You may use as many initiators as desired.
 
 # Troubleshooting
 If a new version of the probegenerator is released on docker you will need to pull the latest image in order to utilize the latest functionality. The latest version of the image will be accessible under the highest numerical version value. For instance, if there are images tagged with 0.1 and 0.2, then the image tagged '0.2' corresponds to the most up to date image. 
 
-If the probegenerator code is updated on github, you will need to pull the latest version. You can either delete the probegenerator 
-folder and clone it again, or simply from the root of probegenerator run:
-```
-git pull origin master
-```
-
-Paths in the env_file are relative to the MountFolder. For instance, if your folder structure is 'MountFolder/probegenerator', then the path to probegenerator is './probegenerator'.
+Paths in the env_file are relative to the MountFolder. For instance, if your folder structure is 'MountFolder/genes.fasta', then the path to fasta file is './genes.fasta'.
 
 Check the latest version of the docker image here: https://cloud.docker.com/repository/registry-1.docker.io/dstein96/probegenerator/tags
