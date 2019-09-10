@@ -1,8 +1,12 @@
 from __future__ import print_function
 from argparse import ArgumentParser
 from pysam import AlignmentFile
+from probeGenerator import parse_initiators
+import os
 import csv
 import re
+
+output_base_path = os.path.join('/data', 'output')
 
 def parse_alignment_bam(file_path):
     bamfile = AlignmentFile(file_path, 'rb', check_header=False, check_sq=False)
@@ -98,14 +102,13 @@ def get_final_orf_index(probes):
 def pair_in_three_utr(pair, final_orf_index):
     return int(pair[0]['start']) > final_orf_index
 
-def write_specific_probes(probes, initiator):
+def write_specific_probes(path, probes, initiator):
     name = probes[0]['gene name'].split(" ")[0]
-    with open(name + '.fasta', 'w+') as f:
+    with open(os.path.join(path, name, name) + '.fasta', 'w+') as f:
         f.write(">" + name + " probes initiator " + initiator + "\n")
         for i in range(0, len(probes), 2):
             f.write(probes[i]['final probe'] + '\n')
             f.write(probes[i+1]['final probe'] + '\n')
-        print(name + '.fasta')
 
 def extract_alignment_scores(reads):
     scores = []
@@ -136,12 +139,15 @@ def main():
     args = userInput.parse_args()
     input_path = args.Path
     path = args.Path2
-    initiator = args.Initiator
-    reads = parse_alignment_bam(path)
-    filtered = filter_reads_by_alignment_qual(reads)
-    good_probes = remove_non_specific_probes(input_path, filtered)
-    final_probes = get_final_probes(good_probes)
-    write_specific_probes(final_probes, initiator)
+    initiator_file = args.Initiator
+
+    initiators = parse_initiators(initiator_file)
+    for initiator in initiators:
+        reads = parse_alignment_bam(os.path.join(output_base_path, initiator[0], path))
+        filtered = filter_reads_by_alignment_qual(reads)
+        good_probes = remove_non_specific_probes(os.path.join(output_base_path, initiator[0], input_path), filtered)
+        final_probes = get_final_probes(good_probes)
+        write_specific_probes(os.path.join(output_base_path, initiator[0]), final_probes, initiator[0])
 
 if __name__ == '__main__':
     main()
