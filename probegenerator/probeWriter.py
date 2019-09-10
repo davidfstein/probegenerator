@@ -12,7 +12,7 @@ def write_probes_for_alignment_fasta(pairs, desired_spaces):
             file.write(reverseComplement(pairs[index][1][3]) + spacer + reverseComplement(pairs[index][0][3]) + '\n')
 
 def write_probes_to_csv(pairs, path='.'):
-    name = pairs[0][0][0] + '_probes.csv'
+    name = pairs[0][0][0].split(" ")[0] + '_probes.csv'
     with open(os.path.join(path, name), 'w+') as probes:
         writer = csv.writer(probes, delimiter=",")
         writer.writerow(['gene name', 'start', 'stop', 'seq', 'tm', 'spacing', 'set', 'probe', 'amplifier', 'final name', 'left', 'spacer', 'right', 'final probe', 'In Orf?'])
