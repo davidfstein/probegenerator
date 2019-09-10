@@ -20,7 +20,7 @@ Update the env file with the appropriate arguments for your needs.
 
 # Run the container
 ```
-docker run --env-file={path/to/env_file} -v ~/{path/to/MountFolder}:/data dstein96/probegenerator:0.7
+docker run --env-file={path/to/env_file} -v ~/{path/to/MountFolder}:/data dstein96/probegenerator:0.71
 ```
 After running the container you should see a folder called output containing the probe information in your MountFolder.
 
