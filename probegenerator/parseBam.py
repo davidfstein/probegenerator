@@ -36,7 +36,7 @@ def get_final_probes(probes, num_probes_desired):
     final_probes = []
     orf_probes = filter_pairs(probes, pair_in_orf)
     if len(orf_probes) >= num_probes_desired:
-        final_probes.extend(orf_probes[0:100])
+        final_probes.extend(orf_probes[0:num_probes_desired])
         return final_probes
     else:
         final_probes.extend(orf_probes)
