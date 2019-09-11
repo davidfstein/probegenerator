@@ -113,11 +113,6 @@ def extract_alignment_scores(reads):
             score.append(None)
         scores.append(score)
     return scores
-            
-def write_scores_to_disk(scores):
-    with open('../probe_scores.txt', 'w+') as file:
-        for score in scores:
-            file.write(str(score) + '\n')
 
 def main():
     userInput = ArgumentParser(description="")
