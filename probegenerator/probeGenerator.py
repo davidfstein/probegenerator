@@ -2,6 +2,7 @@ from __future__ import print_function
 from argparse import ArgumentParser
 from reverseComplement import reverseComplement
 from orf_finder import find_start_codons, find_longest_orf
+from utils.initiator_utils import parse_initiators
 import constants
 import probeWriter
 import csv
@@ -79,14 +80,6 @@ def append_metadata_to_probes(probes, metadata):
 
 def is_probe_in_orf(probe_start, probe_length, orf_start, orf_length):
     return probe_start >= orf_start and probe_start + probe_length <= orf_start + orf_length 
-
-def parse_initiators(initiator_file):
-    initiators = []
-    with open(initiator_file) as file:
-        reader = csv.DictReader(file)
-        for row in reader:
-            initiators.append([ row['initiator'], row['left sequence'], row['left spacer'], row['right sequence'], row['right spacer'] ])
-    return initiators
 
 def main():
     userInput = ArgumentParser(description="Requires a path to a bed file from which to read probes. Takes an integer value to determine "

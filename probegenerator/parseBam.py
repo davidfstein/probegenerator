@@ -1,7 +1,7 @@
 from __future__ import print_function
 from argparse import ArgumentParser
 from pysam import AlignmentFile
-from probeGenerator import parse_initiators
+from utils.initiator_utils import parse_initiators
 import constants
 import os
 import csv
