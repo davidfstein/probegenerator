@@ -2,11 +2,10 @@ from __future__ import print_function
 from argparse import ArgumentParser
 from reverseComplement import reverseComplement
 from orf_finder import find_start_codons, find_longest_orf
+import constants
 import probeWriter
 import csv
 import os
-
-output_base_path = os.path.join('/data', 'output')
 
 def read_probes(probe_candidates):
     with open(probe_candidates) as probes:
@@ -132,11 +131,11 @@ def main():
     
     for initiator in pairs_with_meta:
         sequence_name = pairs[0][0][0].split(" ")[0]
-        if not os.path.isdir(os.path.join(output_base_path, initiator)):
-            os.mkdir(os.path.join(output_base_path, initiator))
-        if not os.path.isdir(os.path.join(output_base_path, initiator, sequence_name)):
-            os.mkdir(os.path.join(output_base_path, initiator, sequence_name))
-        probeWriter.write_probes_to_csv(pairs_with_meta[initiator], os.path.join(output_base_path, initiator, sequence_name))
+        if not os.path.isdir(os.path.join(constants.OUTPUT_BASE_DIR, initiator)):
+            os.mkdir(os.path.join(constants.OUTPUT_BASE_DIR, initiator))
+        if not os.path.isdir(os.path.join(constants.OUTPUT_BASE_DIR, initiator, sequence_name)):
+            os.mkdir(os.path.join(constants.OUTPUT_BASE_DIR, initiator, sequence_name))
+        probeWriter.write_probes_to_csv(pairs_with_meta[initiator], os.path.join(constants.OUTPUT_BASE_DIR, initiator, sequence_name))
 
     #TODO Filtering of block parse probes is arbitrary. Consider strategy to optimize 
 

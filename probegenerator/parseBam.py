@@ -2,11 +2,10 @@ from __future__ import print_function
 from argparse import ArgumentParser
 from pysam import AlignmentFile
 from probeGenerator import parse_initiators
+import constants
 import os
 import csv
 import re
-
-output_base_path = os.path.join('/data', 'output')
 
 def parse_alignment_bam(file_path):
     bamfile = AlignmentFile(file_path, 'rb', check_header=False, check_sq=False)
@@ -143,11 +142,11 @@ def main():
 
     initiators = parse_initiators(initiator_file)
     for initiator in initiators:
-        reads = parse_alignment_bam(os.path.join(output_base_path, initiator[0], path))
+        reads = parse_alignment_bam(os.path.join(constants.OUTPUT_BASE_DIR, initiator[0], path))
         filtered = filter_reads_by_alignment_qual(reads)
-        good_probes = remove_non_specific_probes(os.path.join(output_base_path, initiator[0], input_path), filtered)
+        good_probes = remove_non_specific_probes(os.path.join(constants.OUTPUT_BASE_DIR, initiator[0], input_path), filtered)
         final_probes = get_final_probes(good_probes)
-        write_specific_probes(os.path.join(output_base_path, initiator[0]), final_probes, initiator[0])
+        write_specific_probes(os.path.join(constants.OUTPUT_BASE_DIR, initiator[0]), final_probes, initiator[0])
 
 if __name__ == '__main__':
     main()
