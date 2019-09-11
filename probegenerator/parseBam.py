@@ -99,21 +99,6 @@ def write_specific_probes(path, probes, initiator):
             f.write(probes[i]['final probe'] + '\n')
             f.write(probes[i+1]['final probe'] + '\n')
 
-def extract_alignment_scores(reads):
-    scores = []
-    for read in reads:
-        score = []
-        if read.tags[0][0] == 'AS':
-            score.append(read.tags[0][1])
-        else:
-            score.append(None)
-        if len(read.tags) > 1 and read.tags[1][0] == 'XS':
-            score.append(read.tags[1][1])
-        else:
-            score.append(None)
-        scores.append(score)
-    return scores
-
 def main():
     userInput = ArgumentParser(description="")
     requiredNamed = userInput.add_argument_group('required arguments')
