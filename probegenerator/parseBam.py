@@ -32,23 +32,23 @@ def remove_non_specific_probes(csv_path, specific_probes):
                 good_probes.append(row)
         return good_probes
 
-def get_final_probes(probes):
+def get_final_probes(probes, num_probes_desired):
     final_probes = []
     orf_probes = filter_pairs(probes, pair_in_orf)
-    if len(orf_probes) >= 100:
+    if len(orf_probes) >= num_probes_desired:
         final_probes.extend(orf_probes[0:100])
         return final_probes
     else:
         final_probes.extend(orf_probes)
     three_utr_probes = filter_pairs(probes, pair_in_three_utr, (get_final_orf_index(probes)))
-    probes_needed = 100 - len(final_probes)
+    probes_needed = num_probes_desired - len(final_probes)
     if len(three_utr_probes) >= probes_needed:
         final_probes.extend(three_utr_probes[0:probes_needed])
         return final_probes
     else:
         final_probes.extend(three_utr_probes)
     five_utr_probes = filter_pairs(probes, pair_in_five_utr, get_final_orf_index(probes))
-    probes_needed = 100 - len(final_probes)
+    probes_needed = num_probes_desired - len(final_probes)
     if len(five_utr_probes) >= probes_needed:
         final_probes.extend(five_utr_probes[0:probes_needed])
         return final_probes
@@ -135,7 +135,7 @@ def main():
         reads = parse_alignment_bam(os.path.join(constants.OUTPUT_BASE_DIR, initiator[0], path))
         filtered = filter_reads_by_alignment_qual(reads)
         good_probes = remove_non_specific_probes(os.path.join(constants.OUTPUT_BASE_DIR, initiator[0], input_path), filtered)
-        final_probes = get_final_probes(good_probes)
+        final_probes = get_final_probes(good_probes, 50)
         write_specific_probes(os.path.join(constants.OUTPUT_BASE_DIR, initiator[0]), final_probes, initiator[0])
 
 if __name__ == '__main__':
