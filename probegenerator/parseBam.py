@@ -34,20 +34,20 @@ def remove_non_specific_probes(csv_path, specific_probes):
 
 def get_final_probes(probes):
     final_probes = []
-    orf_probes = get_pairs_in_orf(probes)
+    orf_probes = filter_pairs(probes, pair_in_orf)
     if len(orf_probes) >= 100:
         final_probes.extend(orf_probes[0:100])
         return final_probes
     else:
         final_probes.extend(orf_probes)
-    three_utr_probes = get_pairs_in_three_utr(probes)
+    three_utr_probes = filter_pairs(probes, pair_in_three_utr, (get_final_orf_index(probes)))
     probes_needed = 100 - len(final_probes)
     if len(three_utr_probes) >= probes_needed:
         final_probes.extend(three_utr_probes[0:probes_needed])
         return final_probes
     else:
         final_probes.extend(three_utr_probes)
-    five_utr_probes = get_pairs_in_five_utr(probes)
+    five_utr_probes = filter_pairs(probes, pair_in_five_utr, get_final_orf_index(probes))
     probes_needed = 100 - len(final_probes)
     if len(five_utr_probes) >= probes_needed:
         final_probes.extend(five_utr_probes[0:probes_needed])
@@ -55,31 +55,18 @@ def get_final_probes(probes):
     final_probes.extend(five_utr_probes)
     return final_probes
 
-def get_pairs_in_orf(probes):
-    orf_probes = []
+def filter_pairs(probes, pair_filter, *extra_filter_args):
+    filtered_pairs = []
     for i in range(0, len(probes), 2):
         pair = [probes[i], probes[i+1]]
-        if pair_in_orf(pair):
-            orf_probes.extend(pair)
-    return orf_probes
-
-def get_pairs_in_three_utr(probes):
-    three_utr_probes = []
-    final_orf_index = get_final_orf_index(probes)
-    for i in range(0, len(probes), 2):
-        pair = [probes[i], probes[i+1]]
-        if pair_in_three_utr(pair, final_orf_index):
-            three_utr_probes.extend(pair)
-    return three_utr_probes
-
-def get_pairs_in_five_utr(probes):
-    five_utr_probes = []
-    final_orf_index = get_final_orf_index(probes)
-    for i in range(0, len(probes), 2):
-        pair = [probes[i], probes[i+1]]
-        if not pair_in_orf(pair) and not pair_in_three_utr(pair, final_orf_index):
-            five_utr_probes.extend(pair)
-    return five_utr_probes
+        result = None 
+        if extra_filter_args:
+            result = pair_filter(pair, *extra_filter_args)
+        else:
+            result = pair_filter(pair)
+        if result:
+            filtered_pairs.extend(pair)
+    return filtered_pairs        
 
 def num_pairs_in_orf(probes):
     num_pairs = 0
@@ -88,9 +75,6 @@ def num_pairs_in_orf(probes):
             num_pairs += 1
     return num_pairs
 
-def pair_in_orf(pair):
-    return pair[0]['In Orf?'] == 'True' and pair[1]['In Orf?'] == 'True'
-
 def get_final_orf_index(probes):
     max_orf_index = 0
     for probe in probes:
@@ -98,8 +82,14 @@ def get_final_orf_index(probes):
             max_orf_index = int(probe['start'])
     return max_orf_index
 
+def pair_in_orf(pair):
+    return pair[0]['In Orf?'] == 'True' and pair[1]['In Orf?'] == 'True'
+
 def pair_in_three_utr(pair, final_orf_index):
     return int(pair[0]['start']) > final_orf_index
+
+def pair_in_five_utr(pair, final_orf_index):
+    return not (pair_in_three_utr(pair, final_orf_index) or pair_in_orf(pair))
 
 def write_specific_probes(path, probes, initiator):
     name = probes[0]['gene name'].split(" ")[0]
