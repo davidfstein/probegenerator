@@ -1,5 +1,5 @@
 from __future__ import print_function
-from reverseComplement import reverseComplement
+from reverse_complement import reverseComplement
 from argparse import ArgumentParser
 import csv
 import os
@@ -26,18 +26,3 @@ def write_body(writer, pairs):
 def convert_file_contents_to_list(path, strip_chars='[]\n', split_char=','):
 	with open(path) as file:
 		return [line.strip(strip_chars).split(split_char) for line in file.readlines()]
-
-def main():
-    userInput = ArgumentParser(description="")
-    requiredNamed = userInput.add_argument_group('required arguments')
-    requiredNamed.add_argument('-p', '--Probes', action='store', required=True)
-
-    args = userInput.parse_args()
-    probe_file = args.Probes
-
-    parsed_probes = convert_file_contents_to_list(probe_file)
-
-    write_probes_to_csv(parsed_probes)
-
-if __name__ == '__main__':
-    main()

@@ -23,17 +23,6 @@ def find_start_codons(sequence):
 def is_stop_codon(sequence):
     return sequence.lower() in ['tag', 'taa', 'tga']
 
-def reverse_complement(sequence):
-    reverseSequence = reverseString(sequence)
-    return getComplement(reverseSequence)
-
-def reverseString(string):
-    return string[::-1]
-
-def getComplement(sequence):
-    complements = {"A": "T", "T": "A", "G": "C", "C": "G"}
-    return ''.join([complements[nuc] for nuc in list(sequence)])
-
 def main():
     userInput = ArgumentParser()
     requiredNamed = userInput.add_argument_group('required arguments')

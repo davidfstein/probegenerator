@@ -1,10 +1,10 @@
 from __future__ import print_function
 from argparse import ArgumentParser
-from reverseComplement import reverseComplement
 from orf_finder import find_start_codons, find_longest_orf
+from utils.reverse_complement import reverseComplement
 from utils.initiator_utils import parse_initiators
+import utils.file_writer_utils as file_writer_utils
 import constants
-import probeWriter
 import csv
 import os
 
@@ -113,7 +113,7 @@ def main():
     candidate_probes = read_probes(input_path)
     filtered_probes = filter_probes_by_spaces(candidate_probes, desired_spaces)
     pairs = get_probe_pairs(filtered_probes, desired_spaces)
-    probeWriter.write_probes_for_alignment_fasta(pairs, desired_spaces)
+    file_writer_utils.write_probes_for_alignment_fasta(pairs, desired_spaces)
 
     initiators = parse_initiators(initiator_file)
 
@@ -128,9 +128,7 @@ def main():
             os.mkdir(os.path.join(constants.OUTPUT_BASE_DIR, initiator))
         if not os.path.isdir(os.path.join(constants.OUTPUT_BASE_DIR, initiator, sequence_name)):
             os.mkdir(os.path.join(constants.OUTPUT_BASE_DIR, initiator, sequence_name))
-        probeWriter.write_probes_to_csv(pairs_with_meta[initiator], os.path.join(constants.OUTPUT_BASE_DIR, initiator, sequence_name))
-
-    #TODO Filtering of block parse probes is arbitrary. Consider strategy to optimize 
+        file_writer_utils.write_probes_to_csv(pairs_with_meta[initiator], os.path.join(constants.OUTPUT_BASE_DIR, initiator, sequence_name))
 
 if __name__ == '__main__':
     main()
