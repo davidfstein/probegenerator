@@ -2,23 +2,11 @@ from __future__ import print_function
 from argparse import ArgumentParser
 from collections import namedtuple
 from Bio import SeqIO
-
-def write_fasta(records):
-    names = []
-    for record in records:
-        name = '../' + strip_filename_illegal_characters(record.name) + '.fa'
-        with open(name, 'w+') as file:
-            SeqIO.write(record, file, 'fasta')
-        names.append(name[:-3])
-    return names
+from utils.file_writer_utils import write_fasta
 
 def multifasta_to_list_of_fasta(multifasta_path):
     with open(multifasta_path, 'rU') as multifasta:
         return [record for record in SeqIO.parse(multifasta, 'fasta')]
-
-def strip_filename_illegal_characters(name):
-    name = name.replace('/', '').replace(':', '').replace('\\', '').replace('.', '').replace('|', '')
-    return name
 
 def main():
     userInput = ArgumentParser(description="Requires a fasta file or multifasta file as input. If file is multifasta, the file is split "

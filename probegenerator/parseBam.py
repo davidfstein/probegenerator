@@ -2,6 +2,7 @@ from __future__ import print_function
 from argparse import ArgumentParser
 from pysam import AlignmentFile
 from utils.initiator_utils import parse_initiators
+from utils.file_writer_utils import write_specific_probes
 import constants
 import os
 import csv
@@ -90,14 +91,6 @@ def pair_in_three_utr(pair, final_orf_index):
 
 def pair_in_five_utr(pair, final_orf_index):
     return not (pair_in_three_utr(pair, final_orf_index) or pair_in_orf(pair))
-
-def write_specific_probes(path, probes, initiator):
-    name = probes[0]['gene name'].split(" ")[0]
-    with open(os.path.join(path, name, name) + '.fasta', 'w+') as f:
-        f.write(">" + name + " probes initiator " + initiator + "\n")
-        for i in range(0, len(probes), 2):
-            f.write(probes[i]['final probe'] + '\n')
-            f.write(probes[i+1]['final probe'] + '\n')
 
 def main():
     userInput = ArgumentParser(description="")
