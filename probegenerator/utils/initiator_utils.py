@@ -1,6 +1,9 @@
 import csv
 
 def parse_initiators(initiator_file):
+    '''
+    Parse a csv with initiators into a list.
+    '''
     initiators = []
     with open(initiator_file) as file:
         reader = csv.DictReader(file)

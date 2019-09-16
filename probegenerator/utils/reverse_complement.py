@@ -1,5 +1,8 @@
 
 def reverseComplement(sequence):
+    '''
+    Get the reverse complement of a sequence. 
+    '''
     reverseSequence = reverseString(sequence)
     return getComplement(reverseSequence)
 
