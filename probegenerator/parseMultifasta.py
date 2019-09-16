@@ -5,13 +5,20 @@ from Bio import SeqIO
 from utils.file_writer_utils import write_fasta
 
 def multifasta_to_list_of_fasta(multifasta_path):
+    '''
+    Split a fasta file with multiple entries into individual records and return the records as a list.
+    '''
     with open(multifasta_path, 'rU') as multifasta:
         return [record for record in SeqIO.parse(multifasta, 'fasta')]
 
 def main():
+    '''
+    Split a fasta file into invidual records. Write each record to disk as an individual fasta file.
+    Print the individual fasta file names to standard out. 
+    '''
     userInput = ArgumentParser(description="Requires a fasta file or multifasta file as input. If file is multifasta, the file is split "
                                                     + "into mulitple single entry fasta files and the new fasta files are written to the current directory. "
-                                                    + "Returns a list of resulting file names for passing to downstream tools.")
+                                                    + "Prints a list of resulting file names for passing to downstream tools.")
     requiredNamed = userInput.add_argument_group('required arguments')
     requiredNamed.add_argument('-f', '--file', action='store', required=True,
                                 help='The FASTA file for splitting')
