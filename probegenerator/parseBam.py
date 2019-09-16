@@ -9,10 +9,17 @@ import csv
 import re
 
 def parse_alignment_bam(file_path):
+    '''
+    Parse bam or sam file with pysam.
+    '''
     bamfile = AlignmentFile(file_path, 'rb', check_header=False, check_sq=False)
     return [read for read in bamfile.fetch()]
 
 def filter_reads_by_alignment_qual(reads):
+    '''
+    Filters all reads that do not have exactly one alignment. Also filter
+    reads that have an alignment score less than -10. Assumes bowtie2 end-to-end mode.
+    '''
     filtered_reads = []
     for read in reads:
         if not read.has_tag('AS'):
@@ -23,7 +30,10 @@ def filter_reads_by_alignment_qual(reads):
             filtered_reads.append(read)
     return filtered_reads
 
-def remove_non_specific_probes(csv_path, specific_probes):
+def retrieve_specific_probes_from_csv(csv_path, specific_probes):
+    '''
+    Extract specific probes from the csv file output by the probeGenerator script.
+    '''
     good_sets = [re.sub('[^0-9]', '', probe.query_name) for probe in specific_probes]
     with open(csv_path) as probes:
         good_probes = []
@@ -34,6 +44,10 @@ def remove_non_specific_probes(csv_path, specific_probes):
         return good_probes
 
 def get_final_probes(probes, num_probes_desired):
+    '''
+    Get probes up to the desired number of probes extracting first from the open reading frame, and
+    then if necessary from the three prime utr, and finally from the five prime utr. 
+    '''
     final_probes = []
     orf_probes = filter_pairs(probes, pair_in_orf)
     if len(orf_probes) >= num_probes_desired:
@@ -57,6 +71,10 @@ def get_final_probes(probes, num_probes_desired):
     return final_probes
 
 def filter_pairs(probes, pair_filter, *extra_filter_args):
+    '''
+    Filters probe pairs based on arbitrary criteria. Expects a boolean function pair_filter
+    and optional extra_filter_args to pass to the pair_filter function.
+    '''
     filtered_pairs = []
     for i in range(0, len(probes), 2):
         pair = [probes[i], probes[i+1]]
@@ -70,6 +88,9 @@ def filter_pairs(probes, pair_filter, *extra_filter_args):
     return filtered_pairs        
 
 def num_pairs_in_orf(probes):
+    '''
+    Determine the number of probe pairs that are in the open reading frame.
+    '''
     num_pairs = 0
     for i in range(0, len(probes), 2):
         if pair_in_orf([probes[i], probes[i+1]]):
@@ -77,6 +98,10 @@ def num_pairs_in_orf(probes):
     return num_pairs
 
 def get_final_orf_index(probes):
+    '''
+    Determine the probe with the maximum starting index that is still in the
+    open reading frame. 
+    '''
     max_orf_index = 0
     for probe in probes:
         if probe['In Orf?'] == 'True' and int(probe['start']) > max_orf_index:
@@ -84,15 +109,29 @@ def get_final_orf_index(probes):
     return max_orf_index
 
 def pair_in_orf(pair):
+    '''
+    Return true if a probe is in the open reading frame.
+    '''
     return pair[0]['In Orf?'] == 'True' and pair[1]['In Orf?'] == 'True'
 
 def pair_in_three_utr(pair, final_orf_index):
+    '''
+    Return true if a probe is in the three prime utr.
+    '''
     return int(pair[0]['start']) > final_orf_index
 
 def pair_in_five_utr(pair, final_orf_index):
+    '''
+    Return true if a probe is in the five prime utr.
+    '''
     return not (pair_in_three_utr(pair, final_orf_index) or pair_in_orf(pair))
 
 def main():
+    '''
+    Parses the csv files output from the probeGenerator script and the bam files output from bowtie2 to extract 
+    specific probe pairs. Writes fasta files containing the extracted probe pairs for the genes in each initiator
+    directory. Assumes that output and initiator and gene directories have already been created. 
+    '''
     userInput = ArgumentParser(description="")
     requiredNamed = userInput.add_argument_group('required arguments')
     requiredNamed.add_argument('-p', '--Path', action='store', required=True)
@@ -107,7 +146,7 @@ def main():
     for initiator in initiators:
         reads = parse_alignment_bam(os.path.join(constants.OUTPUT_BASE_DIR, initiator[0], path))
         filtered = filter_reads_by_alignment_qual(reads)
-        good_probes = remove_non_specific_probes(os.path.join(constants.OUTPUT_BASE_DIR, initiator[0], input_path), filtered)
+        good_probes = retrieve_specific_probes_from_csv(os.path.join(constants.OUTPUT_BASE_DIR, initiator[0], input_path), filtered)
         final_probes = get_final_probes(good_probes, 50)
         write_specific_probes(os.path.join(constants.OUTPUT_BASE_DIR, initiator[0]), final_probes, initiator[0])
 
