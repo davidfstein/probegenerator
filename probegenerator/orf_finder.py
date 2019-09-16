@@ -1,6 +1,11 @@
 from argparse import ArgumentParser
 
 def find_longest_orf(sequence, start_codon_indices):
+    '''
+    Finds the longest open reading frame in a given sequence.
+    Returns the starting index of the longest open reading frame and
+    the length of the lognest open reading frame.
+    '''
     best_start_index = 0
     longest_orf_so_far = 0
     for index in start_codon_indices:
@@ -14,6 +19,9 @@ def find_longest_orf(sequence, start_codon_indices):
     return (best_start_index + 1, longest_orf_so_far)
 
 def find_start_codons(sequence):
+    '''
+    Get the indices of all the start codons in the sequence.
+    '''
     start_codon_indices = []
     for i in range(len(sequence) - 3):
         if sequence[i:i+3].lower() == 'atg':
@@ -21,9 +29,16 @@ def find_start_codons(sequence):
     return start_codon_indices
 
 def is_stop_codon(sequence):
+    '''
+    Returns true if the sequence is a stop codon.
+    '''
     return sequence.lower() in ['tag', 'taa', 'tga']
 
 def main():
+    '''
+    Parses a file containing a sequence in the FASTA format. Returns the start index and length
+    of the longest open reading frame in the sequence if any exists.
+    '''
     userInput = ArgumentParser()
     requiredNamed = userInput.add_argument_group('required arguments')
     requiredNamed.add_argument('-p', '--Path', action='store', required=True)
