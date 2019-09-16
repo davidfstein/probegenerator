@@ -5,6 +5,9 @@ import csv
 import os
 
 def main():
+    '''
+    Copies bam files from bowtie2 into each of the inititiator directories for a gene.
+    '''
     userInput = ArgumentParser(description="")
     requiredNamed = userInput.add_argument_group('required arguments')
     requiredNamed.add_argument('-i', '--Initiators', action='store', required=True)
