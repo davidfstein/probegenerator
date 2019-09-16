@@ -13,6 +13,9 @@ def read_probes(probe_candidates):
         return [line.rstrip("\n").split("\t") for line in probes if len(line.rstrip("\n").split("\t")) > 0]
 
 def filter_probes_by_spaces(probes, desired_spaces):
+    '''
+    Filter probes without at least the desired number of bases in between their indices.
+    '''
     filtered_probes = []
     probe_end = 0
     for probe in probes:
@@ -23,6 +26,10 @@ def filter_probes_by_spaces(probes, desired_spaces):
 
 
 def get_probe_pairs(sequences, desired_spaces): 
+    '''
+    Seperate probes into pairs. Probes in a pair must be seperated by exactly desired_spaces
+    number of base pairs.
+    '''
     if not sequences:
         raise Exception("Empty sequence list")
     
@@ -42,6 +49,11 @@ def get_probe_pairs(sequences, desired_spaces):
 
 def create_pair_metadata(pairs, orf_start, orf_length, initiator_name, left_initiator_seq, left_initiator_spacer, 
                          right_initiator_seq, right_initiator_spacer):
+    '''
+    Create metadata for each probe. Metadata includes the reverse complement sequence, initiator name and sequence,
+    a boolean denoting the placement of the probe in or out of the longest ORF, the number of spaces from the previous probe,
+    the final probe name, the set number, and the final probe sequence.
+    '''
     last_seq_end = 0
     pair_metadata = []
     for index in range(0, len(pairs)):
@@ -69,6 +81,9 @@ def create_pair_metadata(pairs, orf_start, orf_length, initiator_name, left_init
     return pair_metadata
 
 def append_metadata_to_probes(probes, metadata):
+    '''
+    Add corresponding metadata to individual probes in each probe pair.
+    '''
     i = 0
     probes_with_meta = []
     while i < len(probes) and i < len(metadata):
@@ -79,6 +94,9 @@ def append_metadata_to_probes(probes, metadata):
     return probes_with_meta
 
 def is_probe_in_orf(probe_start, probe_length, orf_start, orf_length):
+    '''
+    Determine if a probe is entirely inside an open reading frame.
+    '''
     return probe_start >= orf_start and probe_start + probe_length <= orf_start + orf_length 
 
 def main():
