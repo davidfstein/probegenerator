@@ -13,9 +13,8 @@ jobs:
           name: Install Docker client
           command: |
             apt-get update -y
-            apt-get install systemd -y
             apt install docker.io -y
-            systemctl start docker
+            service docker start
 
       - run:
           TAG=0.7.$CIRCLE_BUILD_NUM
