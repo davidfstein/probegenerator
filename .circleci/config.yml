@@ -13,6 +13,7 @@ jobs:
           name: Install Docker client
           command: |
             apt-get update -y
+            apt-get install systemd -y
             apt install docker.io -y
             systemctl start docker
 
