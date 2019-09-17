@@ -9,12 +9,12 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: true
 
-      - run:
-          name: Install Docker client
-          command: |
-            apt-get update -y
-            apt install docker.io -y
-            service docker start
+      # - run:
+      #     name: Install Docker client
+      #     command: |
+      #       apt-get update -y
+      #       apt install docker.io -y
+      #       service docker start
 
       - run:
           TAG=0.7.$CIRCLE_BUILD_NUM
