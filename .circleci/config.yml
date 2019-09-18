@@ -8,7 +8,8 @@ jobs:
           mkdir /build
           cd /build
 
-      - checkout /build
+      - checkout:
+          path: /build
 
       # Checkout OligoMiner
       - run: git clone https://github.com/brianbeliveau/OligoMiner.git
