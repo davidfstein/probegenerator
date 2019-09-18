@@ -12,10 +12,13 @@ jobs:
           path: $HOME/build
 
       # Checkout OligoMiner
-      - run: git clone https://github.com/brianbeliveau/OligoMiner.git
+      - run: git clone https://github.com/brianbeliveau/OligoMiner.git $HOME/build
 
       # Move Dockerfile from probegenerator to /build directory
-      - run: cp ./probegenerator/Dockerfile ./Dockerfile 
+      - run: |
+          ll
+          cp $HOME/build/probegenerator/Dockerfile $HOME/build/Dockerfile 
+          ll
 
       # Build and push the probe generator image
       - run: |
