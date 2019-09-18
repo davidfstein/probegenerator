@@ -16,9 +16,9 @@ jobs:
 
       # Move Dockerfile from probegenerator to /build directory
       - run: |
-          ll
+          ls
           cp $HOME/build/probegenerator/Dockerfile $HOME/build/Dockerfile 
-          ll
+          ls
 
       # Build and push the probe generator image
       - run: |
