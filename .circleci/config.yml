@@ -5,17 +5,17 @@ jobs:
     steps:
       # Setup build directory
       - run: |
-          mkdir /build
-          cd /build
+          mkdir $HOME/build
+          cd $HOME/build
 
       - checkout:
-          path: /build
+          path: $HOME/build
 
       # Checkout OligoMiner
       - run: git clone https://github.com/brianbeliveau/OligoMiner.git
 
       # Move Dockerfile from probegenerator to /build directory
-      - run: cp probegenerator/Dockerfile ./Dockerfile 
+      - run: cp ./probegenerator/Dockerfile ./Dockerfile 
 
       # Build and push the probe generator image
       - run: |
