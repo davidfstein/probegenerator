@@ -4,8 +4,10 @@ jobs:
     machine: true
     steps:
       # Setup build directory
-      - run: mkdir /build
+      - run: |
+          mkdir /build
       
+      # Set working directory
       working_directory: /build
 
       - checkout
