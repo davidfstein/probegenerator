@@ -9,10 +9,10 @@ jobs:
           cd $HOME/build
 
       - checkout:
-          path: $HOME/build
+          path: $HOME/build/probegenerator
 
       # Checkout OligoMiner
-      - run: git clone https://github.com/brianbeliveau/OligoMiner.git $HOME/build
+      - run: git clone https://github.com/brianbeliveau/OligoMiner.git $HOME/build/OligoMiner
 
       # Move Dockerfile from probegenerator to /build directory
       - run: |
