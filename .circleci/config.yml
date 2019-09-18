@@ -8,8 +8,8 @@ jobs:
           mkdir $HOME/build
           cd $HOME/build
 
-      - checkout:
-          path: $HOME/build/probegenerator
+      # Checkout probegenerator
+      - run: git clone https://github.com/davidfstein/probegenerator.git $HOME/build/probegenerator
 
       # Checkout OligoMiner
       - run: git clone https://github.com/brianbeliveau/OligoMiner.git $HOME/build/OligoMiner
