@@ -6,11 +6,9 @@ jobs:
       # Setup build directory
       - run: |
           mkdir /build
-      
-      # Set working directory
-      working_directory: /build
+          cd /build
 
-      - checkout
+      - checkout /build
 
       # Checkout OligoMiner
       - run: git clone https://github.com/brianbeliveau/OligoMiner.git
