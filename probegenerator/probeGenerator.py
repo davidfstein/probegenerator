@@ -137,7 +137,7 @@ def main():
 
     pairs_with_meta = {}
     for initiator in initiators:
-        pair_meta = create_pair_metadata(pairs, start_orf, orf_length, *initiator)
+        pair_meta = create_pair_metadata(pairs, start_orf + 1, orf_length, *initiator)
         pairs_with_meta[initiator[0]] = append_metadata_to_probes(pairs, pair_meta)
     
     for initiator in pairs_with_meta:
