@@ -118,7 +118,7 @@ def pair_in_three_utr(pair, final_orf_index):
     '''
     Return true if a probe is in the three prime utr.
     '''
-    return int(pair[0]['start']) > final_orf_index
+    return int(pair[0]['start']) > final_orf_index or int(pair[1]['start']) > final_orf_index
 
 def pair_in_five_utr(pair, final_orf_index):
     '''
