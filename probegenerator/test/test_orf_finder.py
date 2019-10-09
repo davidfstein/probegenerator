@@ -5,7 +5,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 import unittest
 from probegenerator import orf_finder
 
-class TestParseBam(unittest.TestCase):
+class TestOrfFinder(unittest.TestCase):
 
     def test_find_longest_orf_one_orf(self):
         sequence = 'AAAAUGTACGACTAGCTT'
