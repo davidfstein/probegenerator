@@ -8,15 +8,18 @@ def find_longest_orf(sequence, start_codon_indices):
     '''
     best_start_index = 0
     longest_orf_so_far = 0
+    codon_length = 3
     for index in start_codon_indices:
-        for i in range(0, len(sequence) - index, 3):
-            if is_stop_codon(sequence[index+i:index+i+3]):
+        for i in range(0, len(sequence) - index, codon_length):
+            if index + i + codon_length >= len(sequence):
+                break
+            if is_stop_codon(sequence[index + i:index + i + codon_length]):
                 current_orf_length = i
                 if current_orf_length > longest_orf_so_far:
                     longest_orf_so_far = current_orf_length
                     best_start_index = index
                 break
-    return (best_start_index + 1, longest_orf_so_far)
+    return (best_start_index, longest_orf_so_far)
 
 def find_start_codons(sequence):
     '''
