@@ -1,8 +1,11 @@
-import unittest
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+import unittest
+import pysam
 from probegenerator import parseBam
+# from mock import MagicMock
 
 class TestParseBam(unittest.TestCase):
 
@@ -82,6 +85,136 @@ class TestParseBam(unittest.TestCase):
         probe_one = {'In Orf?': "True"}
         probe_two = {'In Orf?': "False"}
         self.assertEqual(parseBam.num_pairs_in_orf([probe_one, probe_two]), 0)
+
+    def test_pair_filter_empty(self):
+        test_filter = lambda x: x == 0
+        self.assertEqual(parseBam.filter_pairs([], test_filter), [])
+
+    def test_pair_filter_one_match(self):
+        test_filter = lambda pair: pair[0] == 5 and pair[1] == 6
+        probes = [5, 6, 7, 8]
+        self.assertEqual(parseBam.filter_pairs(probes, test_filter), [5, 6])
+
+    def test_get_final_probes_all_in_orf(self):
+        desired_number = 4
+        probe_one = {
+            'start': 0,
+            'In Orf?': 'True'
+        }
+        probe_two = {
+            'start': 28,
+            'In Orf?': 'True'
+        }
+        probe_three = {
+            'start': 50,
+            'In Orf?': 'True'
+        }
+        probe_four = {
+            'start': 78,
+            'In Orf?': 'True'
+        }
+        probe_five = {
+            'start': 200,
+            'In Orf?': 'False'
+        }
+        probe_six = {
+            'start': 228,
+            'In Orf?': 'False'
+        }
+        probes = [probe_one, probe_two, probe_three, probe_four, probe_five, probe_six]
+        final_probes = [probe_one, probe_two, probe_three, probe_four]
+        self.assertEqual(parseBam.get_final_probes(probes, desired_number), final_probes)
+
+    def test_get_final_probes_two_orf_two_three_prime(self):
+        desired_number = 4
+        probe_one = {
+            'start': 0,
+            'In Orf?': 'False'
+        }
+        probe_two = {
+            'start': 28,
+            'In Orf?': 'False'
+        }
+        probe_three = {
+            'start': 50,
+            'In Orf?': 'True'
+        }
+        probe_four = {
+            'start': 78,
+            'In Orf?': 'True'
+        }
+        probe_five = {
+            'start': 200,
+            'In Orf?': 'False'
+        }
+        probe_six = {
+            'start': 228,
+            'In Orf?': 'False'
+        }
+        probes = [probe_one, probe_two, probe_three, probe_four, probe_five, probe_six]
+        final_probes = [probe_three, probe_four, probe_five, probe_six]
+        self.assertEqual(parseBam.get_final_probes(probes, desired_number), final_probes)
+
+    def test_get_final_probes_take_all(self):
+        desired_number = 6
+        probe_one = {
+            'start': 0,
+            'In Orf?': 'False'
+        }
+        probe_two = {
+            'start': 28,
+            'In Orf?': 'False'
+        }
+        probe_three = {
+            'start': 50,
+            'In Orf?': 'True'
+        }
+        probe_four = {
+            'start': 78,
+            'In Orf?': 'True'
+        }
+        probe_five = {
+            'start': 200,
+            'In Orf?': 'False'
+        }
+        probe_six = {
+            'start': 228,
+            'In Orf?': 'False'
+        }
+        probes = [probe_one, probe_two, probe_three, probe_four, probe_five, probe_six]
+        final_probes = [probe_three, probe_four, probe_five, probe_six, probe_one, probe_two]
+        self.assertEqual(parseBam.get_final_probes(probes, desired_number), final_probes)
+
+    def test_filter_reads_by_alignment_qual_empty(self):
+        reads = []
+        self.assertEqual(parseBam.filter_reads_by_alignment_qual([]), [])
+
+    def test_filter_reads_by_alignment_qual_none_specific(self):
+        read_one = pysam.AlignedSegment()
+        read_one.set_tag('AS', 0)
+        read_one.set_tag('XS', 0)
+        reads = [read_one]
+        self.assertEqual(parseBam.filter_reads_by_alignment_qual(reads), [])
+
+    def test_filter_reads_by_alignment_qual_one_specific(self):
+        read_one = pysam.AlignedSegment()
+        read_one.set_tag('AS', 0)
+        read_one.set_tag('XS', 0)
+        read_two = pysam.AlignedSegment()
+        read_two.set_tag('AS', 0)
+        reads = [read_one, read_two]
+        self.assertEqual(parseBam.filter_reads_by_alignment_qual(reads), [read_two])
+
+    def test_filter_reads_by_alignment_qual_low_specificity(self):
+        read_one = pysam.AlignedSegment()
+        read_one.set_tag('AS', -11)
+        reads = [read_one]
+        self.assertEqual(parseBam.filter_reads_by_alignment_qual(reads), [])
+
+    def test_filter_reads_by_alignment_qual_no_alignment(self):
+        read_one = pysam.AlignedSegment()
+        reads = [read_one]
+        self.assertEqual(parseBam.filter_reads_by_alignment_qual(reads), [])
 
 if __name__ == '__main__':
     unittest.main()
