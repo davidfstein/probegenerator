@@ -5,7 +5,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 import unittest
 import pysam
 from probegenerator import parseBam
-# from mock import MagicMock
 
 class TestParseBam(unittest.TestCase):
 
