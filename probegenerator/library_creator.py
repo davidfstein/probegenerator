@@ -5,33 +5,20 @@ import os
 import csv
 import constants
 
-
-def append_library_name(sublibrary_name, sublibrary_path):
-    '''
-    Add sublibrary name to the header of the sublibrary fasta file.
-    '''
-    with open(sublibrary_path, "w") as sub_fasta:
-        data = sub_fasta.readlines()
-        sub_fasta.write(sublibrary_name + '\n')
-        sub_fasta.write(data)
-
-
-def compile_sublibrary_fasta(sublibrary_spec_path):
+def compile_sublibrary_fasta(subpool_index):
     '''
     Concatanate probe sequences from all individual genes to a single fasta file for each 
     sublibrary.
     '''
-    with open(sublibrary_spec_path) as sublibrary_spec:
-        data = csv.DictReader(sublibrary_spec)
-        for row in data:
-            with open(os.path.join(constants.TEST_BASE_DIR, 'Library', row['Subpool']) + '.fa', 'w') as subpool:
-                subpool.write(row['Subpool'] + '\n')
-                for initiator, gene in row.items():
-                    if initiator == 'Subpool':
-                        continue
-                    with open(os.path.join(constants.TEST_BASE_DIR, initiator, gene.capitalize(), gene.capitalize() + '.fasta')) as gene:
-                        for line in gene.readlines():
-                            subpool.write(line)
+    for row in subpool_index:
+        with open(os.path.join(constants.TEST_BASE_DIR, 'Library', row['Subpool']) + '.fa', 'w') as subpool:
+            subpool.write(row['Subpool'] + '\n')
+            for initiator, gene in row.items():
+                if initiator == 'Subpool':
+                    continue
+                with open(os.path.join(constants.TEST_BASE_DIR, initiator, gene.capitalize(), gene.capitalize() + '.fasta')) as gene:
+                    for line in gene.readlines():
+                        subpool.write(line)
 
 def clean_sublibrary(sublibrary_path):
     '''
@@ -46,17 +33,14 @@ def clean_sublibrary(sublibrary_path):
         for line in cleaned_lines:
             clean_sublibrary.write(line)
 
-
-def attach_primers(sublibrary_path, nt_primer, nb_primer, header_line=True):
-    with open(sublibrary_path) as sublibrary:
-        data = sublibrary.readlines()
-        probes_with_primers = []
-        for i in range(0, len(data)):
-            #Skip first line if it is a header
-            if header_line and i == 0:
-                continue
-            probes_with_primers.append(nt_primer + data[i].strip('\n') + nb_primer)
-        return probes_with_primers            
+def attach_primers(sequences, nt_primer, nb_primer, header_line=True):
+    probes_with_primers = []
+    for i in range(0, len(sequences)):
+        #Skip first line if it is a header
+        if header_line and i == 0:
+            continue
+        probes_with_primers.append(nt_primer + sequences[i] + nb_primer)
+    return probes_with_primers            
 
 def get_primer_sequence(primer_data, primer_id):
     for row in primer_data:
@@ -97,7 +81,8 @@ if __name__ == '__main__':
 
     # Combine fasta from genes into a single file for each sublibrary
     # Append library names to sublibrary fasta files
-    compile_sublibrary_fasta(subpool_index_path)
+    subpool_index = file_reader_utils.read_delimited_file_as_dict_list(subpool_index_path)
+    compile_sublibrary_fasta(subpool_index)
 
     # Removing > from sublibrary fastas
     (_, _, filenames) = next(os.walk(os.path.join(constants.TEST_BASE_DIR, 'Library')))
@@ -113,7 +98,9 @@ if __name__ == '__main__':
         nt_primer = get_primer_sequence(nt_primer_data, index['Nt'])
         nb_primer = get_primer_sequence(nb_primer_data, index['Nb'])
         library = index['sublibraries']
-        library_with_primers = attach_primers(os.path.join(constants.TEST_BASE_DIR, 'Library', library + '_clean.fa'), nt_primer, nb_primer)
+        sequences = file_reader_utils.read_file_as_list_of_lines(os.path.join(constants.TEST_BASE_DIR, 'Library', library + '_clean.fa'),
+                                                                 strip_new_lines=True)
+        library_with_primers = attach_primers(sequences, nt_primer, nb_primer)
         with open(os.path.join(constants.TEST_BASE_DIR, 'Library', library + '_primers.fa'), 'w') as pool_with_primers:
             for line in library_with_primers:
                 pool_with_primers.write(line + '\n')
