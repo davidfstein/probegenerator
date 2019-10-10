@@ -1,5 +1,6 @@
 from __future__ import print_function
 from argparse import ArgumentParser
+from utils import file_reader_utils
 import os
 import csv
 import constants
@@ -57,22 +58,10 @@ def attach_primers(sublibrary_path, nt_primer, nb_primer, header_line=True):
             probes_with_primers.append(nt_primer + data[i].strip('\n') + nb_primer)
         return probes_with_primers            
 
-def get_primer_sequence(sequence_path, primer_id):
-    with open(sequence_path) as primers:
-        primer_data = csv.DictReader(primers)
-        for row in primer_data:
-            if row['plate_position'] == primer_id:
-                return row['sequence']
-
-def get_primer_positions_for_sublibraries(primer_index_path):
-    with open(primer_index_path) as primer_index:
-        indexes = csv.DictReader(primer_index)
-        return [row for row in indexes]
-
-def parse_sublibrary_spec(sublibrary_spec_path):
-    with open(sublibrary_spec_path) as sublibrary_spec:
-        reader = csv.DictReader(sublibrary_spec)
-        return [row for row in reader]
+def get_primer_sequence(primer_data, primer_id):
+    for row in primer_data:
+        if row['plate_position'] == primer_id:
+            return row['sequence']
 
 def concatenate_sublibraries(sublibrary_names):
 
@@ -115,12 +104,14 @@ if __name__ == '__main__':
     for filename in filenames:
         clean_sublibrary(os.path.join(constants.TEST_BASE_DIR, 'Library', filename))
 
-    indexes = get_primer_positions_for_sublibraries(primer_index_path)
+    primer_indexes = file_reader_utils.read_delimited_file_as_dict_list(primer_index_path)
     
     # Attach primers to cleaned sublibrary fasta sequences
-    for index in indexes:
-        nt_primer = get_primer_sequence(nt_path, index['Nt'])
-        nb_primer = get_primer_sequence(nb_path, index['Nb'])
+    nt_primer_data = file_reader_utils.read_delimited_file_as_dict_list(nt_path)
+    nb_primer_data = file_reader_utils.read_delimited_file_as_dict_list(nb_path)
+    for index in primer_indexes:
+        nt_primer = get_primer_sequence(nt_primer_data, index['Nt'])
+        nb_primer = get_primer_sequence(nb_primer_data, index['Nb'])
         library = index['sublibraries']
         library_with_primers = attach_primers(os.path.join(constants.TEST_BASE_DIR, 'Library', library + '_clean.fa'), nt_primer, nb_primer)
         with open(os.path.join(constants.TEST_BASE_DIR, 'Library', library + '_primers.fa'), 'w') as pool_with_primers:
@@ -128,5 +119,5 @@ if __name__ == '__main__':
                 pool_with_primers.write(line + '\n')
 
     # Append all sequences to order file
-    sublibrary_names = [row['sublibraries'] for row in parse_sublibrary_spec(primer_index_path)]
+    sublibrary_names = [row['sublibraries'] for row in primer_indexes]
     concatenate_sublibraries(sublibrary_names)
