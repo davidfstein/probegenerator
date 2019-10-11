@@ -20,17 +20,19 @@ def compile_sublibrary_fasta(subpool_index):
                     for line in gene.readlines():
                         subpool.write(line)
 
-def clean_sublibrary(sublibrary_path):
-    '''
-    Write new sublibrary fasta files without ">".
-    '''
-    cleaned_lines = []
-    with open(sublibrary_path, 'r') as sublibrary:
-        cleaned_lines = [line for line in sublibrary.readlines() if not line.lstrip().startswith(">")]
+def strip_fasta_headers(library):
+    return [line for line in library if not line.lstrip().startswith(">")]
 
-    clean_file_path = sublibrary_path[::-1].split('.', 1)[1][::-1]
-    with open(clean_file_path + '_clean.fa', 'w') as clean_sublibrary:
-        for line in cleaned_lines:
+def get_file_path_without_extension(path):
+    if not os.path.isfile(path):
+        raise Exception("Path must be to a file.")
+    head, tail = os.path.split(path)
+    tail_without_extension = tail[::-1].split('.')[1][::-1]
+    return os.path.join(head, tail_without_extension)
+
+def write_cleaned_sublibrary(cleaned_library, cleaned_library_basepath):
+    with open(cleaned_library_basepath + '_clean.fa', 'w') as clean_sublibrary:
+        for line in cleaned_library:
             clean_sublibrary.write(line)
 
 def attach_primers(sequences, nt_primer, nb_primer, header_line=True):
@@ -87,7 +89,11 @@ if __name__ == '__main__':
     # Removing > from sublibrary fastas
     (_, _, filenames) = next(os.walk(os.path.join(constants.TEST_BASE_DIR, 'Library')))
     for filename in filenames:
-        clean_sublibrary(os.path.join(constants.TEST_BASE_DIR, 'Library', filename))
+        sublibrary_path = os.path.join(constants.TEST_BASE_DIR, 'Library', filename)
+        library_lines = file_reader_utils.read_file_as_list_of_lines(sublibrary_path)
+        library_without_headers = strip_fasta_headers(library_lines)
+        clean_library_base_path = get_file_path_without_extension(sublibrary_path)
+        write_cleaned_sublibrary(library_without_headers, clean_library_base_path)
 
     primer_indexes = file_reader_utils.read_delimited_file_as_dict_list(primer_index_path)
     
