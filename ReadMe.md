@@ -39,3 +39,5 @@ Check the latest version of the docker image here: https://cloud.docker.com/repo
 
 # References 
 OligoMiner: A rapid, flexible environment for the design of genome-scale oligonucleotide in situ hybridization probes Brian J. Beliveau, Jocelyn Y. Kishi, Guy Nir, Hiroshi M. Sasaki, Sinem K. Saka, Son C. Nguyen, Chao-ting Wu, Peng Yin bioRxiv 171504; doi: https://doi.org/10.1101/171504
+
+Choi HMT, Schwarzkopf M, Fornace ME, et al. Third-generation in situ hybridization chain reaction: multiplexed, quantitative, sensitive, versatile, robust. Development. 2018;145(12):dev165753. Published 2018 Jun 26. doi:10.1242/dev.165753
