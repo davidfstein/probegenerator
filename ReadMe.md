@@ -34,5 +34,8 @@ Paths in the env_file are relative to the MountFolder. For instance, if your fol
 
 Check the latest version of the docker image here: https://cloud.docker.com/repository/registry-1.docker.io/dstein96/probegenerator/tags
 
+# Citation
+10.5281/zenodo.3516447
+
 # References 
 OligoMiner: A rapid, flexible environment for the design of genome-scale oligonucleotide in situ hybridization probes Brian J. Beliveau, Jocelyn Y. Kishi, Guy Nir, Hiroshi M. Sasaki, Sinem K. Saka, Son C. Nguyen, Chao-ting Wu, Peng Yin bioRxiv 171504; doi: https://doi.org/10.1101/171504
