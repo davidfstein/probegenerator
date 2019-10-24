@@ -41,6 +41,9 @@ docker run --env-file={path/to/env_file} -v ~/{path/to/MountFolder}:/data dstein
 ```
 After running the container you should see a folder called output containing the probe information in your MountFolder.
 
+# Output
+After running the program you should see a folder called "output" in your MountFolder. Inside the output folder will be folders for each initiator in your initiator file. Inside each initiator folder are folders for each of the genes you provided in your fasta file[s]. Each gene folder contains three files. A csv containing metadata about the probes, a .bam file containing the result of the bowtie alignment for selected probe pairs, and a .fa file containing the selected probe pair sequences with initiator sequences appended.
+
 # Troubleshooting
 If a new version of the probegenerator is released on docker you will need to pull the latest image in order to utilize the latest functionality. The latest version of the image will be accessible under the highest numerical version value. For instance, if there are images tagged with 0.1 and 0.2, then the image tagged '0.2' corresponds to the most up to date image. 
 
@@ -49,7 +52,7 @@ Paths in the env_file are relative to the MountFolder. For instance, if your fol
 Check the latest version of the docker image here: https://cloud.docker.com/repository/registry-1.docker.io/dstein96/probegenerator/tags
 
 # Citation
-10.5281/zenodo.3516447
+Doi: 10.5281/zenodo.3516447
 
 # References 
 OligoMiner: A rapid, flexible environment for the design of genome-scale oligonucleotide in situ hybridization probes Brian J. Beliveau, Jocelyn Y. Kishi, Guy Nir, Hiroshi M. Sasaki, Sinem K. Saka, Son C. Nguyen, Chao-ting Wu, Peng Yin bioRxiv 171504; doi: https://doi.org/10.1101/171504
