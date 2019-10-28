@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/davidfstein/probegenerator.svg?style=svg)](https://circleci.com/gh/davidfstein/probegenerator)
+
 # The iniator file
 Create a file called "initiators.csv". This file will contain the initiator sequences for HCR. The file called "initiator.csv" in the res/examples directory in this project is an example of what your initiator file should look like. Copy the header line from that file and fill in the values as needed for your project. You may use as many initiators as desired in your intitiators file. 
 
