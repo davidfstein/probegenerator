@@ -14,10 +14,6 @@ jobs:
       # Checkout probegenerator
       - run: git clone https://$GIT_USER:$GIT_PASS@github.com/davidfstein/probegenerator.git $HOME/build/probegenerator
 
-      - restore_cache:
-          # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
-          key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}  
-
       - run:
           command: |
             sudo pip install pipenv
