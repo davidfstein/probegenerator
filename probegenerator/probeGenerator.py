@@ -3,18 +3,19 @@ from argparse import ArgumentParser
 from orf_finder import find_start_codons, find_longest_orf
 from utils.reverse_complement import reverseComplement
 from utils.initiator_utils import parse_initiators
-import utils.file_writer_utils as file_writer_utils
+from utils import file_reader_utils
+from utils import file_writer_utils
 import constants
 import csv
 import os
 
-def read_probes(probe_candidates):
-    with open(probe_candidates) as probes:
-        return [line.rstrip("\n").split("\t") for line in probes if len(line.rstrip("\n").split("\t")) > 0]
+def split_on_tabs(probe_candidates):
+    return [line.split("\t") for line in probe_candidates if len(line) > 0]
 
 def filter_probes_by_spaces(probes, desired_spaces):
     '''
-    Filter probes without at least the desired number of bases in between their indices.
+    Filter probes without at least the desired number of bases in between their indices. Assumes 
+    probes are sorted by ascending end index.
     '''
     filtered_probes = []
     probe_end = 0
@@ -28,7 +29,8 @@ def filter_probes_by_spaces(probes, desired_spaces):
 def get_probe_pairs(sequences, desired_spaces): 
     '''
     Seperate probes into pairs. Probes in a pair must be seperated by exactly desired_spaces
-    number of base pairs.
+    number of base pairs. Assumes probes sorted ascending by end index. Best performance if 
+    probes seperated by fewer than desired_spaces have been removed.
     '''
     if not sequences:
         raise Exception("Empty sequence list")
@@ -84,13 +86,15 @@ def append_metadata_to_probes(probes, metadata):
     '''
     Add corresponding metadata to individual probes in each probe pair.
     '''
-    i = 0
+    if len(probes) != len(metadata):
+        raise Exception("Probes and metadata must be the same length.")
+
     probes_with_meta = []
-    while i < len(probes) and i < len(metadata):
+    for i in range(0, len(probes)):
         first = probes[i][0] + metadata[i][0]
         second = probes[i][1] + metadata[i][1]
         probes_with_meta.append([first, second])
-        i += 1
+
     return probes_with_meta
 
 def is_probe_in_orf(probe_start, probe_length, orf_start, orf_length):
@@ -128,7 +132,7 @@ def main():
     start_codons = find_start_codons(sequence)
     start_orf, orf_length = find_longest_orf(sequence, start_codons)
 
-    candidate_probes = read_probes(input_path)
+    candidate_probes = split_on_tabs(file_reader_utils.read_file_as_list_of_lines(input_path, strip_new_lines=True))
     filtered_probes = filter_probes_by_spaces(candidate_probes, desired_spaces)
     pairs = get_probe_pairs(filtered_probes, desired_spaces)
     file_writer_utils.write_probes_for_alignment_fasta(pairs, desired_spaces)
@@ -137,7 +141,7 @@ def main():
 
     pairs_with_meta = {}
     for initiator in initiators:
-        pair_meta = create_pair_metadata(pairs, start_orf, orf_length, *initiator)
+        pair_meta = create_pair_metadata(pairs, start_orf + 1, orf_length, *initiator)
         pairs_with_meta[initiator[0]] = append_metadata_to_probes(pairs, pair_meta)
     
     for initiator in pairs_with_meta:

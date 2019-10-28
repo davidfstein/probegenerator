@@ -3,3 +3,7 @@
 .DS_STORE
 
 *.pyc
+
+*.coverage
+
+htmlcov

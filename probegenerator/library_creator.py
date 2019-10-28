@@ -1,78 +1,53 @@
 from __future__ import print_function
 from argparse import ArgumentParser
+from utils import file_reader_utils
 import os
 import csv
 import constants
 
-
-def append_library_name(sublibrary_name, sublibrary_path):
-    '''
-    Add sublibrary name to the header of the sublibrary fasta file.
-    '''
-    with open(sublibrary_path, "w") as sub_fasta:
-        data = sub_fasta.readlines()
-        sub_fasta.write(sublibrary_name + '\n')
-        sub_fasta.write(data)
-
-
-def compile_sublibrary_fasta(sublibrary_spec_path):
+def compile_sublibrary_fasta(subpool_index):
     '''
     Concatanate probe sequences from all individual genes to a single fasta file for each 
     sublibrary.
     '''
-    with open(sublibrary_spec_path) as sublibrary_spec:
-        data = csv.DictReader(sublibrary_spec)
-        for row in data:
-            with open(os.path.join(constants.TEST_BASE_DIR, 'Library', row['Subpool']) + '.fa', 'w') as subpool:
-                subpool.write(row['Subpool'] + '\n')
-                for initiator, gene in row.items():
-                    if initiator == 'Subpool':
-                        continue
-                    with open(os.path.join(constants.TEST_BASE_DIR, initiator, gene.capitalize(), gene.capitalize() + '.fasta')) as gene:
-                        for line in gene.readlines():
-                            subpool.write(line)
+    for row in subpool_index:
+        with open(os.path.join(constants.TEST_BASE_DIR, 'Library', row['Subpool']) + '.fa', 'w') as subpool:
+            subpool.write(row['Subpool'] + '\n')
+            for initiator, gene in row.items():
+                if initiator == 'Subpool':
+                    continue
+                with open(os.path.join(constants.TEST_BASE_DIR, initiator, gene.capitalize(), gene.capitalize() + '.fasta')) as gene:
+                    for line in gene.readlines():
+                        subpool.write(line)
 
-def clean_sublibrary(sublibrary_path):
-    '''
-    Write new sublibrary fasta files without ">".
-    '''
-    cleaned_lines = []
-    with open(sublibrary_path, 'r') as sublibrary:
-        cleaned_lines = [line for line in sublibrary.readlines() if not line.lstrip().startswith(">")]
+def strip_fasta_headers(library):
+    return [line for line in library if not line.lstrip().startswith(">")]
 
-    clean_file_path = sublibrary_path[::-1].split('.', 1)[1][::-1]
-    with open(clean_file_path + '_clean.fa', 'w') as clean_sublibrary:
-        for line in cleaned_lines:
+def get_file_path_without_extension(path):
+    if not os.path.isfile(path):
+        raise Exception("Path must be to a file.")
+    head, tail = os.path.split(path)
+    tail_without_extension = tail[::-1].split('.')[1][::-1]
+    return os.path.join(head, tail_without_extension)
+
+def write_cleaned_sublibrary(cleaned_library, cleaned_library_basepath):
+    with open(cleaned_library_basepath + '_clean.fa', 'w') as clean_sublibrary:
+        for line in cleaned_library:
             clean_sublibrary.write(line)
 
+def attach_primers(sequences, nt_primer, nb_primer, header_line=True):
+    probes_with_primers = []
+    for i in range(0, len(sequences)):
+        #Skip first line if it is a header
+        if header_line and i == 0:
+            continue
+        probes_with_primers.append(nt_primer + sequences[i] + nb_primer)
+    return probes_with_primers            
 
-def attach_primers(sublibrary_path, nt_primer, nb_primer, header_line=True):
-    with open(sublibrary_path) as sublibrary:
-        data = sublibrary.readlines()
-        probes_with_primers = []
-        for i in range(0, len(data)):
-            #Skip first line if it is a header
-            if header_line and i == 0:
-                continue
-            probes_with_primers.append(nt_primer + data[i].strip('\n') + nb_primer)
-        return probes_with_primers            
-
-def get_primer_sequence(sequence_path, primer_id):
-    with open(sequence_path) as primers:
-        primer_data = csv.DictReader(primers)
-        for row in primer_data:
-            if row['plate_position'] == primer_id:
-                return row['sequence']
-
-def get_primer_positions_for_sublibraries(primer_index_path):
-    with open(primer_index_path) as primer_index:
-        indexes = csv.DictReader(primer_index)
-        return [row for row in indexes]
-
-def parse_sublibrary_spec(sublibrary_spec_path):
-    with open(sublibrary_spec_path) as sublibrary_spec:
-        reader = csv.DictReader(sublibrary_spec)
-        return [row for row in reader]
+def get_primer_sequence(primer_data, primer_id):
+    for row in primer_data:
+        if row['plate_position'] == primer_id:
+            return row['sequence']
 
 def concatenate_sublibraries(sublibrary_names):
 
@@ -108,25 +83,34 @@ if __name__ == '__main__':
 
     # Combine fasta from genes into a single file for each sublibrary
     # Append library names to sublibrary fasta files
-    compile_sublibrary_fasta(subpool_index_path)
+    subpool_index = file_reader_utils.read_delimited_file_as_dict_list(subpool_index_path)
+    compile_sublibrary_fasta(subpool_index)
 
     # Removing > from sublibrary fastas
     (_, _, filenames) = next(os.walk(os.path.join(constants.TEST_BASE_DIR, 'Library')))
     for filename in filenames:
-        clean_sublibrary(os.path.join(constants.TEST_BASE_DIR, 'Library', filename))
+        sublibrary_path = os.path.join(constants.TEST_BASE_DIR, 'Library', filename)
+        library_lines = file_reader_utils.read_file_as_list_of_lines(sublibrary_path)
+        library_without_headers = strip_fasta_headers(library_lines)
+        clean_library_base_path = get_file_path_without_extension(sublibrary_path)
+        write_cleaned_sublibrary(library_without_headers, clean_library_base_path)
 
-    indexes = get_primer_positions_for_sublibraries(primer_index_path)
+    primer_indexes = file_reader_utils.read_delimited_file_as_dict_list(primer_index_path)
     
     # Attach primers to cleaned sublibrary fasta sequences
-    for index in indexes:
-        nt_primer = get_primer_sequence(nt_path, index['Nt'])
-        nb_primer = get_primer_sequence(nb_path, index['Nb'])
+    nt_primer_data = file_reader_utils.read_delimited_file_as_dict_list(nt_path)
+    nb_primer_data = file_reader_utils.read_delimited_file_as_dict_list(nb_path)
+    for index in primer_indexes:
+        nt_primer = get_primer_sequence(nt_primer_data, index['Nt'])
+        nb_primer = get_primer_sequence(nb_primer_data, index['Nb'])
         library = index['sublibraries']
-        library_with_primers = attach_primers(os.path.join(constants.TEST_BASE_DIR, 'Library', library + '_clean.fa'), nt_primer, nb_primer)
+        sequences = file_reader_utils.read_file_as_list_of_lines(os.path.join(constants.TEST_BASE_DIR, 'Library', library + '_clean.fa'),
+                                                                 strip_new_lines=True)
+        library_with_primers = attach_primers(sequences, nt_primer, nb_primer)
         with open(os.path.join(constants.TEST_BASE_DIR, 'Library', library + '_primers.fa'), 'w') as pool_with_primers:
             for line in library_with_primers:
                 pool_with_primers.write(line + '\n')
 
     # Append all sequences to order file
-    sublibrary_names = [row['sublibraries'] for row in parse_sublibrary_spec(primer_index_path)]
+    sublibrary_names = [row['sublibraries'] for row in primer_indexes]
     concatenate_sublibraries(sublibrary_names)
