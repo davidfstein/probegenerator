@@ -1,4 +1,4 @@
-[![CircleCI](https://circleci.com/gh/davidfstein/probegenerator.svg?style=svg)](https://circleci.com/gh/davidfstein/probegenerator) ![Coverage](./probegenerator/res/images/coverage.svg)  
+[![CircleCI](https://circleci.com/gh/davidfstein/probegenerator.svg?style=svg)](https://circleci.com/gh/davidfstein/probegenerator) ![Coverage](./probegenerator/res/images/coverage.svg) [![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/Naereen/StrapDown.js/blob/master/LICENSE)  
 
 # The iniator file
 Create a file called "initiators.csv". This file will contain the initiator sequences for HCR. The file called "initiator.csv" in the res/examples directory in this project is an example of what your initiator file should look like. Copy the header line from that file and fill in the values as needed for your project. You may use as many initiators as desired in your intitiators file. 
