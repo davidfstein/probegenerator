@@ -1,5 +1,4 @@
 numpy>=1.8.2
 scipy
 biopython
-scikit-learn
 pysam==0.15.2
