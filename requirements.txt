@@ -1,4 +1,4 @@
+biopython
 numpy>=1.8.2
 scipy
-biopython
 pysam==0.15.2
