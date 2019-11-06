@@ -3,6 +3,12 @@
 # The iniator file
 Create a file called "initiators.csv". This file will contain the initiator sequences for HCR. The file called "initiator.csv" in the res/examples directory in this project is an example of what your initiator file should look like. Copy the header line from that file and fill in the values as needed for your project. You may use as many initiators as desired in your intitiators file. 
 
+# Fasta files
+You may put all your sequences in a single '.fa' file. The first word after the ">" of header lines must contain only letters and numbers. This may be updated to be more permissive, but for now this is acceptable: ">TUBB3 NM10000.98 Homo sapiens tubulin beta 3 class III (TUBB3), transcript variant 2, mRNA"
+but this: ">NM10000.98 TUBB3 Homo sapiens tubulin beta 3 class III (TUBB3), transcript variant 2, mRNA"
+will cause an error. 
+Output folders are created by the first characters before a space in a fasta header line. In the previous example a folder "TUBB3" would be created.
+
 # Edit the env file
 Create a file called "env_file".
 The env_file stores arguments to be passed to the docker container when it is run.
