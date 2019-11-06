@@ -39,7 +39,7 @@ Create a folder called whatever you like. I will refer to it as MountFolder. Pla
 
 # Run the container
 ```
-docker run --env-file={path/to/env_file} -v ~/{path/to/MountFolder}:/data dstein96/probegenerator:0.73
+docker run --env-file={path/to/env_file} -v ~/{path/to/MountFolder}:/data dstein96/probegenerator:0.7.11
 ```
 After running the container you should see a folder called output containing the probe information in your MountFolder.
 
