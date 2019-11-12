@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+export PATH=/usr/local/bin:$PATH
+which python
+
 if [ -d "/data/output" ] 
 then
     echo "Please remove or move the output folder from your mount directory." && exit 1
