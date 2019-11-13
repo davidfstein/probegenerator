@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-export PATH=/usr/local/bin:$PATH
 which python
 
 if [ -d "/data/output" ] 
