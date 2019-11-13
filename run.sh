@@ -2,6 +2,7 @@
 
 which python
 
+
 if [ -d "/data/output" ] 
 then
     echo "Please remove or move the output folder from your mount directory." && exit 1
