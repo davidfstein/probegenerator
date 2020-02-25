@@ -35,7 +35,4 @@ ENTRYPOINT bash /app/probegenerator/run.sh \
                 $initiator \
                 $path_to_bowtie_index \
                 $bowtie_index_basename \
-                $fetch \
-                $AWS_ACCESS_KEY_ID \
-                $AWS_SECRET_ACCESS_KEY \
-                $AWS_DEFAULT_REGION
+                $EMAIL 
