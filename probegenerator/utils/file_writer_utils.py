@@ -50,8 +50,13 @@ def write_fasta(records):
     names = []
     for record in records:
         name = '../' + strip_filename_illegal_characters(record.name) + '.fa'
-        with open(name, 'w+') as file:
-            SeqIO.write(record, file, 'fasta')
+        # OligoMiner breaks if there isn't a newline in a sequence
+        newline_sequence = record.seq()
+        if len(record.seq.split('\n')[0]) > 25:
+            newline_sequence = record.seq()[0:25] + '\n' + record.seq[25:]
+        with open(name, 'w+') as f:
+            f.write(">" + name + " " + record.description)
+            f.write(newline_sequence)
         names.append(name[:-3])
     return names
 
