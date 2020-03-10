@@ -24,8 +24,18 @@ def main():
                                 help='The FASTA file for splitting')
     args = userInput.parse_args()
     inputFile = args.file
+
+    lines = []
+    with open(inputFile, 'r') as original:
+        lines = original.readlines()
+
+    with open('prepend' + inputFile, 'w+') as prepended:
+        prepended.write("\n")
+        for line in lines:
+            line = ''.join([i if ord(i) < 128 else '' for i in line])
+            prepended.write(line)
     
-    records = multifasta_to_list_of_fasta(inputFile)
+    records = multifasta_to_list_of_fasta('prepend' + inputFile)
     print(*write_fasta(records))
 
 if __name__ == '__main__':
