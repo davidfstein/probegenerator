@@ -19,9 +19,9 @@ ENV AWS_SECRET_ACCESS_KEY $AWS_SECRET_ACCESS_KEY
 ENV AWS_DEFAULT_REGION $AWS_DEFAULT_REGION
 
 RUN conda config --add channels Bioconda && \
-    pip install numpy scipy scikit-learn && \
-    conda install bowtie2 pysam biopython boto3==1.12.11 && \
     conda install -c conda-forge awscli && \
+    conda install bowtie2 pysam biopython && \
+    pip install numpy scipy scikit-learn boto3==1.12.11 && \
     mkdir /data 
 
 COPY . /app
@@ -42,4 +42,5 @@ ENTRYPOINT bash /app/probegenerator/run.sh \
                 $initiator \
                 $path_to_bowtie_index \
                 $bowtie_index_basename \
-                $email
+                $email \
+		$job_id
