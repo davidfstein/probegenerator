@@ -31,16 +31,18 @@ def write_body(writer, pairs):
         writer.writerow(pair[0])
         writer.writerow(pair[1])
 
-def write_specific_probes(path, name, probes, initiator):
+def write_specific_probes(path, name, probes, dirname):
     '''
     Writes probes to disk in csv format. Probes grouped by gene and initiator.
     '''
-    with open(os.path.join(path, name, name) + '.csv', 'w+') as f:
-        writer = csv.writer(f, delimeter=",")
-        writer.writerow("set", "probe", "sequence")
+    with open(os.path.join(path, dirname, name) + '.csv', 'w+') as f:
+        writer = csv.writer(f, delimiter=",")
+        writer.writerow(["set", "probe", "sequence"])
+        setnum = 1
         for i in range(0, len(probes), 2):
-            writer.write(i, i + "." + i, probes[i]['final probe'])
-            writer.write(i, i + "." + (i+1), probes[i+1]['final probe'])
+            writer.writerow([setnum, str(setnum) + "." + str(1), probes[i]['final probe']])
+            writer.writerow([setnum, str(setnum) + "." + str(2), probes[i+1]['final probe']])
+            setnum += 1
 
 def write_fasta(records):
     '''
