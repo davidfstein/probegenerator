@@ -43,32 +43,14 @@ def retrieve_specific_probes_from_csv(csv_path, specific_probes):
                 good_probes.append(row)
         return good_probes
 
-def get_final_probes(probes, num_probes_desired):
+def get_final_probes(probes):
     '''
-    Get probes up to the desired number of probes extracting first from the open reading frame, and
-    then if necessary from the three prime utr, and finally from the five prime utr. 
+    Get all probe pairs that pass the specificity tests. 
     '''
-    final_probes = []
     orf_probes = filter_pairs(probes, pair_in_orf)
-    if len(orf_probes) >= num_probes_desired:
-        final_probes.extend(orf_probes[0:num_probes_desired])
-        return final_probes
-    else:
-        final_probes.extend(orf_probes)
     three_utr_probes = filter_pairs(probes, pair_in_three_utr, (get_final_orf_index(probes)))
-    probes_needed = num_probes_desired - len(final_probes)
-    if len(three_utr_probes) >= probes_needed:
-        final_probes.extend(three_utr_probes[0:probes_needed])
-        return final_probes
-    else:
-        final_probes.extend(three_utr_probes)
     five_utr_probes = filter_pairs(probes, pair_in_five_utr, get_final_orf_index(probes))
-    probes_needed = num_probes_desired - len(final_probes)
-    if len(five_utr_probes) >= probes_needed:
-        final_probes.extend(five_utr_probes[0:probes_needed])
-        return final_probes
-    final_probes.extend(five_utr_probes)
-    return final_probes
+    return three_utr_probes, five_utr_probes, orf_probes
 
 def filter_pairs(probes, pair_filter, *extra_filter_args):
     '''
@@ -147,8 +129,16 @@ def main():
         reads = parse_alignment_bam(os.path.join(constants.OUTPUT_BASE_DIR, initiator[0], path))
         filtered = filter_reads_by_alignment_qual(reads)
         good_probes = retrieve_specific_probes_from_csv(os.path.join(constants.OUTPUT_BASE_DIR, initiator[0], input_path), filtered)
-        final_probes = get_final_probes(good_probes, 50)
-        write_specific_probes(os.path.join(constants.OUTPUT_BASE_DIR, initiator[0]), final_probes, initiator[0])
+        three_utr_probes, five_utr_probes, orf_probes = get_final_probes(good_probes)
+
+        three_name = three_utr_probes[0]['gene name'].split(" ")[0]
+        write_specific_probes(os.path.join(constants.OUTPUT_BASE_DIR, initiator[0]), three_name, three_utr_probes, initiator[0])
+
+        five_name = five_utr_probes[0]['gene name'].split(" ")[0]
+        write_specific_probes(os.path.join(constants.OUTPUT_BASE_DIR, initiator[0]), five_name, five_utr_probes, initiator[0])
+
+        orf_name = orf_probes[0]['gene name'].split(" ")[0]
+        write_specific_probes(os.path.join(constants.OUTPUT_BASE_DIR, initiator[0]), orf_name, orf_probes, initiator[0])
 
 if __name__ == '__main__':
     main()
