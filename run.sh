@@ -28,7 +28,7 @@ zip -r /data/results.zip /data/output
 
 if [ ! -z "${14}" ]
 then
-    python /app/probegenerator/probegenerator/utils/mail_utils.py -r ${14}
+    python /app/probegenerator/probegenerator/utils/mail_utils.py -r ${14} -j ${15}
 fi
 
 if [ $? != 0 ];
