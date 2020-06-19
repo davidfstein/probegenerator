@@ -29,13 +29,14 @@ def main():
     with open(inputFile, 'r') as original:
         lines = original.readlines()
 
-    with open('prepend' + inputFile, 'w+') as prepended:
+    path = inputFile.split('/')[-1]
+    with open('/data/prepend' + path, 'w+') as prepended:
         prepended.write("\n")
         for line in lines:
             line = ''.join([i if ord(i) < 128 else '' for i in line])
             prepended.write(line)
     
-    records = multifasta_to_list_of_fasta('prepend' + inputFile)
+    records = multifasta_to_list_of_fasta('/data/prepend' + path)
     print(*write_fasta(records))
 
 if __name__ == '__main__':
