@@ -1,5 +1,6 @@
 import os
 import sys 
+from s3_utils import main
 from argparse import ArgumentParser
 import boto3
 from botocore.exceptions import ClientError
@@ -7,7 +8,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 
-def send_probes(recipient, retry_count=0):
+def send_probes(recipient, url, retry_count=0):
     # Replace sender@example.com with your "From" address.
     # This address must be verified with Amazon SES.
     SENDER = "Monaghan Lab <davidmonlab@gmail.com>"
@@ -27,11 +28,9 @@ def send_probes(recipient, retry_count=0):
     # The subject line for the email.
     SUBJECT = "Your Probes Are Ready"
 
-    # The full path to the file that will be attached to the email.
-    ATTACHMENT = "/data/results.zip"
-
     # The email body for recipients with non-HTML email clients.
-    BODY_TEXT = "Thank you for using probe generator. Your probes are attached."
+    BODY_TEXT = "Thank you for using probe generator. Your probes can be downloaded here: " + url + \
+        "Your results will be available for download for 24 hours, after which they will removed."
 
     # The HTML body of the email.
     BODY_HTML = """\
@@ -39,7 +38,9 @@ def send_probes(recipient, retry_count=0):
     <head></head>
     <body>
     <h1>Monaghan Lab - Probe Generator</h1>
-    <p>Thank you for using probe generator. Your probes are attached.</p>
+    <p>Thank you for using probe generator. Your probes can be downloaded here: """ + \
+    url + """</p>
+    <p>Your results will be available for download for 24 hours, after which they will removed. </p>
     </body>
     </html>
     """
@@ -69,20 +70,10 @@ def send_probes(recipient, retry_count=0):
     msg_body.attach(textpart)
     msg_body.attach(htmlpart)
 
-    # Define the attachment part and encode it using MIMEApplication.
-    att = MIMEApplication(open(ATTACHMENT, 'rb').read())
-
-    # Add a header to tell the email client to treat this part as an attachment,
-    # and to give the attachment a name.
-    att.add_header('Content-Disposition','attachment',filename=os.path.basename(ATTACHMENT))
-
     # Attach the multipart/alternative child container to the multipart/mixed
     # parent container.
     msg.attach(msg_body)
 
-    # Add the attachment to the parent container.
-    msg.attach(att)
-    #print(msg)
     try:
         #Provide the contents of the email.
         response = client.send_raw_email(
@@ -98,7 +89,7 @@ def send_probes(recipient, retry_count=0):
     # Display an error if something goes wrong.	
     except ClientError as e:
         if (retry_count < 5):
-            send_probes(recipient, retry_count+1)
+            send_probes(recipient, url, retry_count+1)
             print(e.response['Error']['Message'])
         else:
             sys.exit(1)
@@ -111,7 +102,12 @@ if __name__ == '__main__':
     requiredNamed = userInput.add_argument_group('required arguments')
     requiredNamed.add_argument('-r', '--Recipient', action='store', required=True,
                                 help='The recipients email.')
+    requiredNamed.add_argument('-j', '--Job', action='store', required=True,
+                                help='The recipients email.')
     args = userInput.parse_args()
     recipient = args.Recipient
+    job_id = args.Job
 
-    send_probes(recipient)
+    url = main("/data/results.zip", "probegenerator-results", job_id)
+
+    send_probes(recipient, url)
