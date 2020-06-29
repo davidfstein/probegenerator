@@ -123,8 +123,11 @@ def main():
     initiator_file = args.InitiatorFile
 
     lines = []
+    sequence_name = ""
     with open(fasta) as file:
-        lines = [line.strip('\n') for line in file.readlines()][1:]
+        lines = file.readlines()
+        sequence_name = lines[0].strip(">").strip("\n").split(" ")[0]
+        lines = [line.strip('\n') for line in lines][1:]
     sequence = ''
     for line in lines:
         sequence += line
@@ -139,18 +142,23 @@ def main():
 
     initiators = parse_initiators(initiator_file)
 
+    # Hacky gene name replacement, change later
+    for pair in pairs:
+        # this is the gene name field
+        pair[0][0] = sequence_name
+        pair[1][0] = sequence_name
+
     pairs_with_meta = {}
     for initiator in initiators:
         pair_meta = create_pair_metadata(pairs, start_orf + 1, orf_length, *initiator)
         pairs_with_meta[initiator[0]] = append_metadata_to_probes(pairs, pair_meta)
     
     for initiator in pairs_with_meta:
-        sequence_name = pairs[0][0][0].split(" ")[0]
         if not os.path.isdir(os.path.join(constants.OUTPUT_BASE_DIR, initiator)):
             os.mkdir(os.path.join(constants.OUTPUT_BASE_DIR, initiator))
         if not os.path.isdir(os.path.join(constants.OUTPUT_BASE_DIR, initiator, sequence_name)):
             os.mkdir(os.path.join(constants.OUTPUT_BASE_DIR, initiator, sequence_name))
-        file_writer_utils.write_probes_to_csv(pairs_with_meta[initiator], os.path.join(constants.OUTPUT_BASE_DIR, initiator, sequence_name))
+        file_writer_utils.write_probes_to_csv(pairs_with_meta[initiator], sequence_name, os.path.join(constants.OUTPUT_BASE_DIR, initiator, sequence_name))
 
 if __name__ == '__main__':
     main()
