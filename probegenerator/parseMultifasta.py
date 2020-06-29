@@ -37,7 +37,10 @@ def main():
             prepended.write(line)
     
     records = multifasta_to_list_of_fasta('/data/prepend' + path)
-    print(*write_fasta(records))
+    names = write_fasta(records)
+    with open('/app/names.txt', 'w+') as f:
+        for name in names:
+            f.write(name + '\n')
 
 if __name__ == '__main__':
     main()
