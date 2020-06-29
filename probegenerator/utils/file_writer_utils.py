@@ -16,11 +16,11 @@ def write_probes_for_alignment_fasta(pairs, desired_spaces):
             spacer = ''.join(['N' for _ in range(0, int(desired_spaces) - 1)])
             file.write(reverseComplement(pairs[index][1][3]) + spacer + reverseComplement(pairs[index][0][3]) + '\n')
 
-def write_probes_to_csv(pairs, path='.'):
+def write_probes_to_csv(pairs, name, path='.'):
     '''
     Writes probe pairs with metadata to a csv file.
     '''
-    name = pairs[0][0][0].split(" ")[0] + '_probes.csv'
+    name = name + '_probes.csv'
     with open(os.path.join(path, name), 'w+') as probes:
         writer = csv.writer(probes, delimiter=",")
         writer.writerow(['gene name', 'start', 'stop', 'seq', 'tm', 'spacing', 'set', 'probe', 'amplifier', 'final name', 'left', 'spacer', 'right', 'final probe', 'In Orf?'])
@@ -58,7 +58,7 @@ def write_fasta(records):
         if len(record.seq.split('\n')[0]) > 25:
             newline_sequence = record.seq[0:25] + '\n' + record.seq[25:]
         with open(path, 'w+') as f:
-            f.write('>' + name + " " + record.description + '\n')
+            f.write('>' + record.description + '\n')
             f.write(str(newline_sequence))
         names.append(path[:-3])
     return names
