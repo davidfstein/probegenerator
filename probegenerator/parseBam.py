@@ -131,14 +131,17 @@ def main():
         good_probes = retrieve_specific_probes_from_csv(os.path.join(constants.OUTPUT_BASE_DIR, initiator[0], input_path), filtered)
         three_utr_probes, five_utr_probes, orf_probes = get_final_probes(good_probes)
 
-        three_name = "final_three_prime_probes_" + three_utr_probes[0]['gene name'].split(" ")[0]
-        write_specific_probes(os.path.join(constants.OUTPUT_BASE_DIR, initiator[0]), three_name, three_utr_probes, three_utr_probes[0]['gene name'].split(" ")[0])
+        if  (three_utr_probes):
+            three_name = "final_three_prime_probes_" + three_utr_probes[0]['gene name']
+            write_specific_probes(os.path.join(constants.OUTPUT_BASE_DIR, initiator[0]), three_name, three_utr_probes, three_utr_probes[0]['gene name'])
 
-        five_name = "final_five_prime_probes_" + five_utr_probes[0]['gene name'].split(" ")[0]
-        write_specific_probes(os.path.join(constants.OUTPUT_BASE_DIR, initiator[0]), five_name, five_utr_probes, five_utr_probes[0]['gene name'].split(" ")[0])
+        if (five_utr_probes):
+            five_name = "final_five_prime_probes_" + five_utr_probes[0]['gene name']
+            write_specific_probes(os.path.join(constants.OUTPUT_BASE_DIR, initiator[0]), five_name, five_utr_probes, five_utr_probes[0]['gene name'])
 
-        orf_name = "final_orf_probes_" + orf_probes[0]['gene name'].split(" ")[0]
-        write_specific_probes(os.path.join(constants.OUTPUT_BASE_DIR, initiator[0]), orf_name, orf_probes, orf_probes[0]['gene name'].split(" ")[0])
-
+        if (orf_probes):
+            orf_name = "final_orf_probes_" + orf_probes[0]['gene name']
+            write_specific_probes(os.path.join(constants.OUTPUT_BASE_DIR, initiator[0]), orf_name, orf_probes, orf_probes[0]['gene name'])
+        
 if __name__ == '__main__':
     main()
