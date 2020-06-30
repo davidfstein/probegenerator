@@ -42,5 +42,6 @@ ENTRYPOINT bash /app/probegenerator/run.sh \
                 $initiator \
                 $path_to_bowtie_index \
                 $bowtie_index_basename \
-                $email \
-		$job_id
+                $outputClean \
+                $email  \
+                $job_id  
