@@ -17,17 +17,30 @@ while read -r fasta
 do 
     python /app/OligoMiner/blockParse.py -f $fasta.fa -l $2 -L $3 -g $4 -G $5 -t $6 -T $7 -s $8 -F $9 -O -b -o ../output
     gene_name=(${fasta//\// })
-    python /app/probegenerator/probegenerator/probeGenerator.py -p ../output.bed -f $fasta.fa -s ${10} -if /data/${11}
-    bowtie2 -x ${13} -U ../probes_for_alignment.fa -t -f --very-sensitive -k 5 --int-quals --no-1mm-upfront --score-min L,-40,-0.6 -p 4  > "${gene_name[1]}".bam
-    python /app/probegenerator/probegenerator/utils/file_copy_utils.py -i /data/${11} -n "${gene_name[1]}"
-    python /app/probegenerator/probegenerator/parseBam.py -p ${gene_name[1]}/${gene_name[1]}_probes.csv -p2 ${gene_name[1]}/${gene_name[1]}.bam -i /data/${11}
+    python /app/probegenerator/probegenerator/probeGenerator.py -p ../output.bed -f $fasta.fa -s ${10} -if /data/${11}    
+
+    # Whether to parse as bed or as bam
+    bed=0
+    ext=""
+    if [ "${14}" == "true" ]; then
+        bowtie2 -x ${13} -U /app/probes_for_alignment.fastq -t -k 2 --local -D 20 -R 3 -N 1 -L 20 -i C,4 --score-min G,1,4 -S "${gene_name[1]}".sam
+        python /app/OligoMiner/outputClean.py -l -f "${gene_name[1]}".sam -D -o "${gene_name[1]}"
+        bed=1
+        ext=".bed"
+    else
+        bowtie2 -x ${13} -U /data/test.fastq -t -k 100 --very-sensitive-local -S "${gene_name[1]}".sam
+        ext=".sam"
+    fi
+
+    python /app/probegenerator/probegenerator/utils/file_copy_utils.py -i /data/${11} -n "${gene_name[1]}" -e "${ext}"
+    python /app/probegenerator/probegenerator/parseBam.py -p ${gene_name[1]}/${gene_name[1]}_probes.csv -p2 ${gene_name[1]}/${gene_name[1]} -i /data/${11} -b ${bed}
 done < /app/names.txt
 
 zip -r /data/results.zip /data/output
 
-if [ ! -z "${14}" ]
+if [ ! -z "${15}" ]
 then
-    python /app/probegenerator/probegenerator/utils/mail_utils.py -r ${14} -j ${15}
+    python /app/probegenerator/probegenerator/utils/mail_utils.py -r ${15} -j ${16}
 fi
 
 if [ $? != 0 ];
