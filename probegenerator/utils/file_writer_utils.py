@@ -7,14 +7,16 @@ import os
 
 def write_probes_for_alignment_fasta(pairs, desired_spaces):
     '''
-    Writes probes to disk in the fasta format. Probes are seperated into pairs and
-    fasta headers are use the pair set numbers as identifiers.
+    Writes probes to disk in the fastq format. 
     '''
-    with open('../probes_for_alignment.fa', 'w+') as file:
+    with open('/app/probes_for_alignment.fastq', 'w+') as file:
         for index in range(len(pairs)):
-            file.write('>pair' + str(index + 1) + '\n')
+            file.write('@chr:' + pairs[index][0][1] + "-" + pairs[index][1][2]+ '\n')
             spacer = ''.join(['N' for _ in range(0, int(desired_spaces) - 1)])
             file.write(reverseComplement(pairs[index][1][3]) + spacer + reverseComplement(pairs[index][0][3]) + '\n')
+            file.write("+\n")
+            seq_length = len(pairs[index][0][3]) * 2
+            file.write("".join(['~' for _ in range(0,  seq_length)]) + '\n')
 
 def write_probes_to_csv(pairs, name, path='.'):
     '''
