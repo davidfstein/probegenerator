@@ -1,19 +1,10 @@
 from __future__ import print_function
 from argparse import ArgumentParser
-from pysam import AlignmentFile
 from utils.initiator_utils import parse_initiators
 from utils.file_writer_utils import write_specific_probes
 import constants
 import os
 import csv
-import re
-
-def parse_alignment_bam(file_path):
-    '''
-    Parse bam or sam file with pysam.
-    '''
-    bamfile = AlignmentFile(file_path, 'rb', check_header=False, check_sq=False)
-    return [read for read in bamfile.fetch()]
 
 def parse_bed(file_path):
     '''
@@ -28,21 +19,6 @@ def parse_bed(file_path):
             end_indices.append(row[2])
     return start_indices, end_indices
 
-def filter_reads_by_alignment_qual(reads):
-    '''
-    Filters all reads that do not have exactly one alignment. Also filter
-    reads that have an alignment score less than -10. Assumes bowtie2 end-to-end mode.
-    '''
-    filtered_reads = []
-    for read in reads:
-        if not read.has_tag('AS'):
-            continue
-        if read.has_tag('XS'):
-            continue
-        if read.get_tag('AS') >= -10:
-            filtered_reads.append(read)
-    return filtered_reads
-
 def retrieve_specific_probes_from_csv(csv_path, start_indices, end_indices):
     '''
     Extract the specific probes from the csv file output by the probeGenerator script.
@@ -55,7 +31,6 @@ def retrieve_specific_probes_from_csv(csv_path, start_indices, end_indices):
                 good_probes.append(row)
             elif row['stop'] in end_indices:
                 good_probes.append(row)
-        print(len(good_probes))
         return good_probes
 
 def get_final_probes(probes):
@@ -134,27 +109,15 @@ def main():
     requiredNamed.add_argument('-p', '--Path', action='store', required=True)
     requiredNamed.add_argument('-p2', '--Path2', action='store', required=True)
     requiredNamed.add_argument('-i', '--Initiator', action='store', required=True)
-    requiredNamed.add_argument('-b', '--Bed', action='store', type=int, required=True)
     args = userInput.parse_args()
     input_path = args.Path
     path = args.Path2
     initiator_file = args.Initiator
-    bed = args.Bed
 
     initiators = parse_initiators(initiator_file)
     for initiator in initiators:
 
-        start_indices = []
-        end_indices = []
-        if bed > 0:
-            start_indices, end_indices = parse_bed(os.path.join(constants.OUTPUT_BASE_DIR, initiator[0], path + '.bed'))
-        else:
-            reads = parse_alignment_bam(os.path.join(constants.OUTPUT_BASE_DIR, initiator[0], path + '.sam'))
-            filtered = filter_reads_by_alignment_qual(reads)
-            # Collect the starting indexes of all the good probes to retrieve from the master csv
-            start_indices = [probe.query_name.split(":")[1].split("-")[0] for probe in filtered]
-            # Same thing for the stop indexes, this will let us pick up the second probe in the pairs
-            end_indices = [probe.query_name.split(":")[1].split("-")[1] for probe in filtered]
+        start_indices, end_indices = parse_bed(os.path.join(constants.OUTPUT_BASE_DIR, initiator[0], path + '.bed'))
 
         good_probes = retrieve_specific_probes_from_csv(os.path.join(constants.OUTPUT_BASE_DIR, initiator[0], input_path), start_indices, end_indices)
         three_utr_probes, five_utr_probes, orf_probes = get_final_probes(good_probes)
