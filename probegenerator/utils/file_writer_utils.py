@@ -16,7 +16,7 @@ def write_probes_for_alignment_fasta(pairs, desired_spaces):
             file.write(reverseComplement(pairs[index][1][3]) + spacer + reverseComplement(pairs[index][0][3]) + '\n')
             file.write("+\n")
             seq_length = len(pairs[index][0][3]) * 2
-            file.write("".join(['~' for _ in range(0,  seq_length)]) + '\n')
+            file.write("".join(['~' for _ in range(0,  seq_length + int(desired_spaces) - 1)]) + '\n')
 
 def write_probes_to_csv(pairs, name, path='.'):
     '''
