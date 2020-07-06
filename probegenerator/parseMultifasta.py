@@ -30,13 +30,13 @@ def main():
         lines = original.readlines()
 
     path = inputFile.split('/')[-1]
-    with open('/data/prepend' + path, 'w+') as prepended:
+    with open('/app/prepend' + path, 'w+') as prepended:
         prepended.write("\n")
         for line in lines:
             line = ''.join([i if ord(i) < 128 else '' for i in line])
             prepended.write(line)
     
-    records = multifasta_to_list_of_fasta('/data/prepend' + path)
+    records = multifasta_to_list_of_fasta('/app/prepend' + path)
     names = write_fasta(records)
     with open('/app/names.txt', 'w+') as f:
         for name in names:
